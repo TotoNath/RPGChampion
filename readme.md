@@ -4,7 +4,7 @@ RPGChampion est une application Spring Boot intégrée à un bot Discord utilisa
 
 ## Prérequis
 
-- Java 11 ou supérieur
+- Java 17 ou supérieur
 - Maven 3.6.3 ou supérieur
 - Un token Discord valide
 
@@ -13,7 +13,7 @@ RPGChampion est une application Spring Boot intégrée à un bot Discord utilisa
 1. Clonez le repository :
 
     ```bash
-    git clone <URL-de-votre-repository>
+    git clone https://github.com/TotoNath/RPGChampion
     cd RPGChampion
     ```
 
