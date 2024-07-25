@@ -8,7 +8,7 @@ RPGChampion est une application Spring Boot intégrée à un bot Discord utilisa
 - Maven 3.6.3 ou supérieur
 - Un token Discord valide
 
-## Installation
+## Installation 
 
 1. Clonez le repository :
 
