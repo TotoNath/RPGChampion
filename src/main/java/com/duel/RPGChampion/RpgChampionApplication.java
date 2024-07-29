@@ -1,9 +1,6 @@
 package com.duel.RPGChampion;
 
-import com.duel.RPGChampion.controller.HelpController;
-import com.duel.RPGChampion.controller.HeroController;
-import com.duel.RPGChampion.controller.PingPongController;
-import com.duel.RPGChampion.controller.UserController;
+import com.duel.RPGChampion.controller.*;
 import net.dv8tion.jda.api.JDABuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -28,6 +25,9 @@ public class RpgChampionApplication implements CommandLineRunner {
     @Autowired
     private UserController userController;
 
+    @Autowired
+    private PrefixController prefixController;
+
     public static void main(String[] args) {
         SpringApplication.run(RpgChampionApplication.class, args);
     }
@@ -36,8 +36,9 @@ public class RpgChampionApplication implements CommandLineRunner {
     public void run(String... args) throws Exception {
         jdaBuilder.addEventListeners(pingPongController)
                 .addEventListeners(heroController)
-                .addEventListeners(helpController)
                 .addEventListeners(userController)
+                .addEventListeners(prefixController)
+                .addEventListeners(helpController)
                 .build();
     }
 

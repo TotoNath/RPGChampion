@@ -12,6 +12,8 @@ import org.springframework.stereotype.Controller;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.duel.RPGChampion.controller.PrefixController.prefix;
+
 @Controller
 public class HeroController extends ListenerAdapter implements CommandController {
 
@@ -28,17 +30,17 @@ public class HeroController extends ListenerAdapter implements CommandController
     public void onMessageReceived(MessageReceivedEvent event) {
         String command = event.getMessage().getContentRaw();
 
-        if (command.startsWith("!createHero")) {
+        if (command.startsWith(prefix+"createHero")) {
             createHero(event);
-        } else if (command.startsWith("!getHeroes")) {
+        } else if (command.startsWith(prefix+"getHeroes")) {
             getHeroes(event);
-        } else if (command.startsWith("!deleteHero")) {
+        } else if (command.startsWith(prefix+"deleteHero")) {
             deleteHero(event, command);
-        } else if (command.startsWith("!heroesCount")) {
+        } else if (command.startsWith(prefix+"heroesCount")) {
             event.getChannel().sendMessage("The number of created heroes is " + heroService.getHeroesCount()).queue();
-        } else if (command.startsWith("!selectHero")) {
+        } else if (command.startsWith(prefix+"selectHero")) {
             selectHero(event,command);
-        } else if (command.startsWith("!pve")) {
+        } else if (command.startsWith(prefix+"pve")) {
             fightPVE(event);
         }
     }
@@ -79,7 +81,7 @@ public class HeroController extends ListenerAdapter implements CommandController
                 event.getChannel().sendMessage("Hero " + heroName + " wasn't selected for user " + username).queue();
             }
         } else {
-            event.getChannel().sendMessage("Usage: !deleteHero <HeroName>").queue();
+            event.getChannel().sendMessage("Usage: "+prefix+"deleteHero <HeroName>").queue();
         }
     }
 
@@ -129,11 +131,11 @@ public class HeroController extends ListenerAdapter implements CommandController
 
     @Override
     public List<String> getCommands() {
-        return List.of("!createHero <heroName> : Creates a new hero",
-                "!getHeroes : returns your heroes",
-                "!deleteHero <heroName> : Deletes a hero",
-                "!heroesCount : The number of heroes created",
-                "!selectHero <heroName> : Selects ur hero for several action such as !pve",
-                "!pve : Your hero goes for a walk ... who knows what will happen ?");
+        return List.of(prefix+"createHero <heroName> : Creates a new hero",
+                prefix+"getHeroes : returns your heroes",
+                prefix+"deleteHero <heroName> : Deletes a hero",
+                prefix+"heroesCount : The number of heroes created",
+                prefix+"selectHero <heroName> : Selects ur hero for several action such as !pve",
+                prefix+"pve : Your hero goes for a walk ... who knows what will happen ?");
     }
 }
