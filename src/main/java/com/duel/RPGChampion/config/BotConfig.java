@@ -17,6 +17,6 @@ public class BotConfig {
     public JDABuilder jdaBuilder() {
         return JDABuilder.createDefault(token)
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
-                .setActivity(Activity.playing("Say !ping"));
+                .setActivity(Activity.playing("Say !help"));
     }
 }

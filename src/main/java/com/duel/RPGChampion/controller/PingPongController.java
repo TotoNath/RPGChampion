@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static com.duel.RPGChampion.controller.PrefixController.prefix;
+
 @Component
 public class PingPongController extends ListenerAdapter implements CommandController {
 
@@ -17,13 +19,13 @@ public class PingPongController extends ListenerAdapter implements CommandContro
 
         String message = event.getMessage().getContentRaw();
 
-        if (message.equalsIgnoreCase("!ping")) {
-            event.getChannel().sendMessage("!pong").queue();
+        if (message.equalsIgnoreCase(prefix+"ping")) {
+            event.getChannel().sendMessage(prefix+"pong").queue();
         }
     }
 
     @Override
     public List<String> getCommands() {
-        return List.of("!ping : returns pong");
+        return List.of(prefix+"ping : returns pong");
     }
 }

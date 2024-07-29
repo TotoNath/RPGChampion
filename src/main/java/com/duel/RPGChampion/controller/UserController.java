@@ -8,6 +8,8 @@ import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
+import static com.duel.RPGChampion.controller.PrefixController.prefix;
+
 @Controller
 public class UserController extends ListenerAdapter implements CommandController {
 
@@ -18,13 +20,13 @@ public class UserController extends ListenerAdapter implements CommandController
     public void onMessageReceived(MessageReceivedEvent event) {
         String command = event.getMessage().getContentRaw();
 
-        if (command.equalsIgnoreCase("!playerCount")) {
+        if (command.equalsIgnoreCase(prefix+"playerCount")) {
             event.getChannel().sendMessage("The number of all players is : " + userService.getPlayerCount() + "\n").queue();
         }
     }
 
     @Override
     public List<String> getCommands() {
-        return List.of("!playerCount : The number of users");
+        return List.of(prefix+"playerCount : The number of users");
     }
 }
