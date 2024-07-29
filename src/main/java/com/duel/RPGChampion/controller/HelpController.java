@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.duel.RPGChampion.controller.PrefixController.prefix;
 
@@ -53,9 +54,7 @@ public class HelpController extends ListenerAdapter implements CommandController
         int totalPages = (int) Math.ceil((double) commands.size() / COMMANDS_PER_PAGE);
         EmbedBuilder embedBuilder = createEmbedBuilder(commands, pageIndex, totalPages);
 
-        channel.sendMessageEmbeds(embedBuilder.build()).queue(message -> {
-            addReactions(message, pageIndex, totalPages);
-        });
+        channel.sendMessageEmbeds(embedBuilder.build()).queue(message -> addReactions(message, pageIndex, totalPages));
     }
 
     private EmbedBuilder createEmbedBuilder(List<String> commands, int pageIndex, int totalPages) {
@@ -87,8 +86,8 @@ public class HelpController extends ListenerAdapter implements CommandController
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         Message message = event.retrieveMessage().complete();
-        if (message.getAuthor().isBot() && !event.getUser().isBot()) {
-            int[] pages = getCurrentAndTotalPages(message.getEmbeds().get(0).getTitle());
+        if (message.getAuthor().isBot() && !Objects.requireNonNull(event.getUser()).isBot()) {
+            int[] pages = getCurrentAndTotalPages(Objects.requireNonNull(message.getEmbeds().get(0).getTitle()));
             int currentPage = pages[0];
             int totalPages = pages[1];
 
@@ -115,10 +114,8 @@ public class HelpController extends ListenerAdapter implements CommandController
         int totalPages = (int) Math.ceil((double) commands.size() / COMMANDS_PER_PAGE);
         EmbedBuilder embedBuilder = createEmbedBuilder(commands, pageIndex, totalPages);
 
-        message.clearReactions().queue(success -> {
-            message.editMessageEmbeds(embedBuilder.build()).queue(updatedMessage -> {
-                addReactions(updatedMessage, pageIndex, totalPages);
-            });
-        });
+        message.clearReactions().queue(success -> message.editMessageEmbeds(embedBuilder.build()).queue(updatedMessage -> {
+            addReactions(updatedMessage, pageIndex, totalPages);
+        }));
     }
 }
