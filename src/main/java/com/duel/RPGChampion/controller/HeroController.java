@@ -27,6 +27,8 @@ public class HeroController extends ListenerAdapter implements CommandController
     @Autowired
     private CombatService combatService;
 
+    public static final String HERO = "Hero ";
+
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         String command = event.getMessage().getContentRaw();
@@ -63,9 +65,9 @@ public class HeroController extends ListenerAdapter implements CommandController
             String username = event.getAuthor().getName();
             boolean wasRenamed = heroService.renameHero(newHeroName, userId);
             if (wasRenamed) {
-                event.getChannel().sendMessage("Hero " + newHeroName + " was renamed").queue();
+                event.getChannel().sendMessage(HERO + newHeroName + " was renamed").queue();
             } else {
-                event.getChannel().sendMessage("Hero " + newHeroName + " wasn't renamed for user " + username).queue();
+                event.getChannel().sendMessage(HERO + newHeroName + " wasn't renamed for user " + username).queue();
             }
         } else {
             event.getChannel().sendMessage("Usage: " + prefix + "renameHero <HeroName>").queue();
@@ -103,9 +105,9 @@ public class HeroController extends ListenerAdapter implements CommandController
             String username = event.getAuthor().getName();
             boolean wasSelected = heroService.selectHero(heroName, userId);
             if (wasSelected) {
-                event.getChannel().sendMessage("Hero " + heroName + " was selected").queue();
+                event.getChannel().sendMessage(HERO + heroName + " was selected").queue();
             } else {
-                event.getChannel().sendMessage("Hero " + heroName + " wasn't selected for user " + username).queue();
+                event.getChannel().sendMessage(HERO + heroName + " wasn't selected for user " + username).queue();
             }
         } else {
             event.getChannel().sendMessage("Usage: " + prefix + "deleteHero <HeroName>").queue();
@@ -120,9 +122,9 @@ public class HeroController extends ListenerAdapter implements CommandController
             String username = event.getAuthor().getName();
             boolean wasSuppresed = heroService.deleteHero(heroName, userId);
             if (wasSuppresed) {
-                event.getChannel().sendMessage("Hero " + heroName + " deleted for user " + username).queue();
+                event.getChannel().sendMessage(HERO + heroName + " deleted for user " + username).queue();
             } else {
-                event.getChannel().sendMessage("Hero " + heroName + " wasn't deleted for user " + username).queue();
+                event.getChannel().sendMessage(HERO + heroName + " wasn't deleted for user " + username).queue();
             }
         } else {
             event.getChannel().sendMessage("Usage: !deleteHero <HeroName>").queue();
@@ -155,7 +157,7 @@ public class HeroController extends ListenerAdapter implements CommandController
             String userId = event.getAuthor().getId();
             String username = event.getAuthor().getName();
             heroService.createHero(heroName, userId, username);
-            event.getChannel().sendMessage("Hero " + heroName + " created for user " + username).queue();
+            event.getChannel().sendMessage(HERO + heroName + " created for user " + username).queue();
         } else {
             event.getChannel().sendMessage("Usage: !createHero <HeroName>").queue();
         }

@@ -133,15 +133,20 @@ public class HeroService {
     @Transactional
     public boolean selectHero(String heroName, String userId) {
         boolean ret = false;
-        try {
-            UserDAO userDAO = userRepository.findByUserId(userId).orElseThrow();
-            HeroDAO hero = userDAO.getHeroes().stream().filter(heroDAO -> heroDAO.getName().equals(heroName)).findFirst().get();
-            userDAO.setSelectedHero(hero);
-            userRepository.save(userDAO);
-            ret = true;
-        } catch (Exception ignored) {
+
+        UserDAO userDAO = userRepository.findByUserId(userId).orElseThrow(null);
+
+        if (userDAO != null) {
+            Optional<HeroDAO> optionalHeroDAO = userDAO.getHeroes().stream().filter(heroDAO -> heroDAO.getName().equals(heroName)).findFirst();
+            if (optionalHeroDAO.isPresent()) {
+                HeroDAO hero = optionalHeroDAO.get();
+                userDAO.setSelectedHero(hero);
+                userRepository.save(userDAO);
+                ret = true;
+            }
         }
         return ret;
+
     }
 
     /**

@@ -26,7 +26,7 @@ public class HelpController extends ListenerAdapter implements CommandController
 
     private final List<CommandController> commandControllers;
 
-    private final int COMMANDS_PER_PAGE = 10;
+    private static final int COMMANDS_PER_PAGE = 10;
 
     @Autowired
     public HelpController(List<CommandController> commandControllers) {
