@@ -4,10 +4,13 @@ import com.duel.RPGChampion.persistence.model.HeroDAO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface HeroRepository extends JpaRepository<HeroDAO, Integer> {
 
     Optional<HeroDAO> findById(int heroId);
+
+    List<HeroDAO> findTop10ByOrderByLevelDesc();
 }

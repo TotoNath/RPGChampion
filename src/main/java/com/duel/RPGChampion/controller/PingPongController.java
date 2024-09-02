@@ -19,13 +19,13 @@ public class PingPongController extends ListenerAdapter implements CommandContro
 
         String message = event.getMessage().getContentRaw();
 
-        if (message.equalsIgnoreCase(prefix+"ping")) {
-            event.getChannel().sendMessage(prefix+"pong").queue();
+        if (message.equalsIgnoreCase(prefix + "ping")) {
+            event.getChannel().sendMessage(prefix + "pong").queue();
         }
     }
 
     @Override
     public List<String> getCommands() {
-        return List.of(prefix+"ping : returns pong");
+        return List.of(prefix + "ping : returns pong");
     }
 }

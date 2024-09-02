@@ -19,8 +19,9 @@ public class UserController extends ListenerAdapter implements CommandController
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         String command = event.getMessage().getContentRaw();
+        String lowerCommand = command.toLowerCase();
 
-        if (command.equalsIgnoreCase(prefix+"playerCount")) {
+        if (lowerCommand.equalsIgnoreCase(prefix+"playerCount")) {
             event.getChannel().sendMessage("The number of all players is : " + userService.getPlayerCount() + "\n").queue();
         }
     }

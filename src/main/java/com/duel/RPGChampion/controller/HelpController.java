@@ -2,6 +2,7 @@ package com.duel.RPGChampion.controller;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -20,9 +21,12 @@ import static com.duel.RPGChampion.controller.PrefixController.prefix;
 public class HelpController extends ListenerAdapter implements CommandController {
 
     public static final String LEFT_ARROW = "⬅️";
+
     public static final String RIGHT_ARROW = "➡️";
+
     private final List<CommandController> commandControllers;
-    private final int COMMANDS_PER_PAGE = 4;
+
+    private static final int COMMANDS_PER_PAGE = 10;
 
     @Autowired
     public HelpController(List<CommandController> commandControllers) {
@@ -50,7 +54,7 @@ public class HelpController extends ListenerAdapter implements CommandController
         return allCommands;
     }
 
-    private void sendHelpMessage(net.dv8tion.jda.api.entities.MessageChannel channel, List<String> commands, int pageIndex) {
+    private void sendHelpMessage(MessageChannel channel, List<String> commands, int pageIndex) {
         int totalPages = (int) Math.ceil((double) commands.size() / COMMANDS_PER_PAGE);
         EmbedBuilder embedBuilder = createEmbedBuilder(commands, pageIndex, totalPages);
 

@@ -30,7 +30,9 @@ public class CombatService {
     private static final int DIFFICULTY = 2;
 
     private static final int NEXT_LOL_STRENGTH_BONUS = 2;
+
     private static final int NEXT_LVL_ABILITY_BONUS = 2;
+
     private static final int NEXT_LVL_HEALTH_BONUS = 10;
 
     @Transactional

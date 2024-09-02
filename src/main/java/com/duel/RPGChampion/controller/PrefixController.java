@@ -32,8 +32,9 @@ public class PrefixController extends ListenerAdapter implements CommandControll
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         String message = event.getMessage().getContentRaw();
+        String lowerMessage = message.toLowerCase();
 
-        if (message.contains(prefix + "prefix")) {
+        if (lowerMessage.contains(prefix + "prefix")) {
             String[] parts = event.getMessage().getContentRaw().split(" ", 2);
             if (parts.length == 2) {
                 String newPrefix = parts[1];
