@@ -80,6 +80,6 @@ public class Hero extends Entity {
     }
 
     public String toFriendlyString(){
-        return name + " is " + age + " years old, is a " + gender + " has " + super.getHp() + "hp with " + super.getStrength() + "strenght and " + super.getAgility() +" ability\n\t\tLVL :" + super.getLevel() + "\tExperience :" + super.getExperience();
+        return name + " is " + age + " years old, is a " + gender + " has " + super.getHp() + "hp with " + super.getStrength() + " strength and " + super.getAgility() +" ability\n\t\tLVL :" + super.getLevel() + "\tExperience :" + super.getExperience();
     }
 }
