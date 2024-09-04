@@ -30,6 +30,8 @@ public class HeroDAO {
 
     private int experience;
 
+    private String guildId;
+
     public HeroDAO() {
         Random random = new Random();
         age = random.nextInt(100);
@@ -60,13 +62,12 @@ public class HeroDAO {
         }
     }
 
+    public int getId() {
+        return id;
+    }
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public String getName() {
@@ -133,17 +134,25 @@ public class HeroDAO {
         this.experience = experience;
     }
 
+    public String getGuildId() {
+        return guildId;
+    }
+
+    public void setGuildId(String guildId) {
+        this.guildId = guildId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HeroDAO heroDAO = (HeroDAO) o;
-        return getId() == heroDAO.getId() && getAge() == heroDAO.getAge() && getHp() == heroDAO.getHp() && getStrength() == heroDAO.getStrength() && getAgility() == heroDAO.getAgility() && getLevel() == heroDAO.getLevel() && getExperience() == heroDAO.getExperience() && Objects.equals(getName(), heroDAO.getName()) && getGender() == heroDAO.getGender();
+        return id == heroDAO.id && age == heroDAO.age && hp == heroDAO.hp && strength == heroDAO.strength && agility == heroDAO.agility && level == heroDAO.level && experience == heroDAO.experience && Objects.equals(name, heroDAO.name) && gender == heroDAO.gender && Objects.equals(guildId, heroDAO.guildId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getName(), getAge(), getGender(), getHp(), getStrength(), getAgility(), getLevel(), getExperience());
+        return Objects.hash(id, name, age, gender, hp, strength, agility, level, experience, guildId);
     }
 
     @Override
@@ -158,6 +167,7 @@ public class HeroDAO {
                 ", agility=" + agility +
                 ", level=" + level +
                 ", experience=" + experience +
+                ", guildId='" + guildId + '\'' +
                 '}';
     }
 }

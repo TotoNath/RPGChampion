@@ -6,6 +6,7 @@ import com.duel.RPGChampion.services.HeroService;
 import com.duel.RPGChampion.services.UserService;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.CollectionUtils;
@@ -13,24 +14,26 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.duel.RPGChampion.controller.PrefixController.prefix;
-
 @Controller
 public class HeroController extends ListenerAdapter implements CommandController {
 
+    public static final String HERO = "Hero ";
+    @Autowired
+    private final PrefixController prefixController;
     @Autowired
     private HeroService heroService;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private CombatService combatService;
 
-    public static final String HERO = "Hero ";
+    public HeroController(PrefixController prefixController) {
+        this.prefixController = prefixController;
+    }
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+        String prefix = prefixController.getPrefix(event);
         String command = event.getMessage().getContentRaw();
 
         if (command.startsWith(prefix + "createHero")) {
@@ -42,28 +45,28 @@ public class HeroController extends ListenerAdapter implements CommandController
         } else if (command.startsWith(prefix + "heroesCount")) {
             event.getChannel().sendMessage("The number of created heroes is " + heroService.getHeroesCount()).queue();
         } else if (command.startsWith(prefix + "selectHero")) {
-            selectHero(event, command);
+            selectHero(event, command, prefix);
         } else if (command.startsWith(prefix + "pve")) {
             fightPVE(event);
         } else if (command.startsWith(prefix + "renameHero")) {
-            renameHero(event, command);
+            renameHero(event, command, prefix);
         } else if (command.startsWith(prefix + "leaderboard")) {
             showLeaderboard(event);
         }
     }
 
     private void showLeaderboard(MessageReceivedEvent event) {
-        String messageToPrint = heroService.getLeaderboard();
+        String messageToPrint = heroService.getLeaderboard(event.getGuild().getId());
         event.getChannel().sendMessage(messageToPrint).queue();
     }
 
-    private void renameHero(MessageReceivedEvent event, String command) {
+    private void renameHero(MessageReceivedEvent event, String command, String prefix) {
         String[] parts = command.split(" ", 2);
         if (parts.length == 2) {
             String newHeroName = parts[1];
             String userId = event.getAuthor().getId();
             String username = event.getAuthor().getName();
-            boolean wasRenamed = heroService.renameHero(newHeroName, userId);
+            boolean wasRenamed = heroService.renameHero(newHeroName, userId, event.getGuild().getId());
             if (wasRenamed) {
                 event.getChannel().sendMessage(HERO + newHeroName + " was renamed").queue();
             } else {
@@ -76,13 +79,15 @@ public class HeroController extends ListenerAdapter implements CommandController
 
     private void fightPVE(MessageReceivedEvent event) {
         String userId = event.getAuthor().getId();
-        int heroId = userService.getSelectedHeroId(userId);
-        String combatOutput = combatService.startCombat(heroId);
+        int heroId = userService.getSelectedHeroId(userId, event.getGuild().getId());
+        if (heroId != -1) {
+            String combatOutput = combatService.startCombat(heroId);
 
-        if (combatOutput.length() <= 2000) {
-            event.getChannel().sendMessage(combatOutput).queue();
-        } else {
-            sendLongMessage(event, combatOutput);
+            if (combatOutput.length() <= 2000) {
+                event.getChannel().sendMessage(combatOutput).queue();
+            } else {
+                sendLongMessage(event, combatOutput);
+            }
         }
     }
 
@@ -97,13 +102,13 @@ public class HeroController extends ListenerAdapter implements CommandController
     }
 
 
-    private void selectHero(MessageReceivedEvent event, String command) {
+    private void selectHero(MessageReceivedEvent event, String command, String prefix) {
         String[] parts = command.split(" ", 2);
         if (parts.length == 2) {
             String heroName = parts[1];
             String userId = event.getAuthor().getId();
             String username = event.getAuthor().getName();
-            boolean wasSelected = heroService.selectHero(heroName, userId);
+            boolean wasSelected = heroService.selectHero(heroName, userId, event.getGuild().getId());
             if (wasSelected) {
                 event.getChannel().sendMessage(HERO + heroName + " was selected").queue();
             } else {
@@ -120,7 +125,7 @@ public class HeroController extends ListenerAdapter implements CommandController
             String heroName = parts[1];
             String userId = event.getAuthor().getId();
             String username = event.getAuthor().getName();
-            boolean wasSuppresed = heroService.deleteHero(heroName, userId);
+            boolean wasSuppresed = heroService.deleteHero(heroName, userId, event.getGuild().getId());
             if (wasSuppresed) {
                 event.getChannel().sendMessage(HERO + heroName + " deleted for user " + username).queue();
             } else {
@@ -132,7 +137,7 @@ public class HeroController extends ListenerAdapter implements CommandController
     }
 
     private void getHeroes(MessageReceivedEvent event) {
-        List<Hero> heroes = heroService.getHeroesOfUser(event.getAuthor().getId());
+        List<Hero> heroes = heroService.getHeroesOfUser(event.getAuthor().getId(), event.getGuild().getId());
         StringBuilder ret = new StringBuilder();
         if (CollectionUtils.isEmpty(heroes)) {
             ret.append("No heroes found for user ").append(event.getAuthor().getName());
@@ -156,7 +161,8 @@ public class HeroController extends ListenerAdapter implements CommandController
             String heroName = parts[1];
             String userId = event.getAuthor().getId();
             String username = event.getAuthor().getName();
-            heroService.createHero(heroName, userId, username);
+            String guildId = event.getGuild().getId();
+            heroService.createHero(heroName, userId, username, guildId);
             event.getChannel().sendMessage(HERO + heroName + " created for user " + username).queue();
         } else {
             event.getChannel().sendMessage("Usage: !createHero <HeroName>").queue();
@@ -164,7 +170,8 @@ public class HeroController extends ListenerAdapter implements CommandController
     }
 
     @Override
-    public List<String> getCommands() {
+    public List<String> getCommands(String guildId) {
+        String prefix = prefixController.getPrefix(guildId);
         return List.of(prefix + "createHero <heroName> : Creates a new hero",
                 prefix + "getHeroes : returns your heroes",
                 prefix + "deleteHero <heroName> : Deletes a hero",

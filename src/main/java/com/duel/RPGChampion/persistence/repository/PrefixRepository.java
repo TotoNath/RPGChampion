@@ -8,4 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface PrefixRepository  extends JpaRepository<PrefixModelDAO, Integer> {
+
+    Optional<PrefixModelDAO> findByGuildId(String guildId);
 }

@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -15,8 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.duel.RPGChampion.controller.PrefixController.prefix;
-
 @Controller
 public class HelpController extends ListenerAdapter implements CommandController {
 
@@ -26,31 +25,35 @@ public class HelpController extends ListenerAdapter implements CommandController
 
     private final List<CommandController> commandControllers;
 
-    private static final int COMMANDS_PER_PAGE = 10;
+    private static final int COMMANDS_PER_PAGE = 5;
 
     @Autowired
-    public HelpController(List<CommandController> commandControllers) {
+    private final PrefixController prefixController;
+
+    @Autowired
+    public HelpController(List<CommandController> commandControllers, PrefixController prefixController) {
         this.commandControllers = commandControllers;
+        this.prefixController = prefixController;
     }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         String command = event.getMessage().getContentRaw();
 
-        if (command.equalsIgnoreCase(prefix + "help")) {
-            List<String> allCommands = getAllCommands();
+        if (command.equalsIgnoreCase((prefixController.getPrefix(event)) + "help")) {
+            List<String> allCommands = getAllCommands(event);
             sendHelpMessage(event.getChannel(), allCommands, 0);
         }
     }
 
     @Override
-    public List<String> getCommands() {
-        return List.of(prefix + "help : shows all commands");
+    public List<String> getCommands(String guildId) {
+        return List.of(prefixController.getPrefix(guildId) + "help : shows all commands");
     }
 
-    private List<String> getAllCommands() {
+    private List<String> getAllCommands(GenericMessageEvent event) {
         List<String> allCommands = new ArrayList<>();
-        commandControllers.forEach(controller -> allCommands.addAll(controller.getCommands()));
+        commandControllers.forEach(controller -> allCommands.addAll(controller.getCommands(event.getGuild().getId())));
         return allCommands;
     }
 
@@ -95,7 +98,7 @@ public class HelpController extends ListenerAdapter implements CommandController
             int currentPage = pages[0];
             int totalPages = pages[1];
 
-            List<String> allCommands = getAllCommands();
+            List<String> allCommands = getAllCommands(event);
 
             if (event.getReaction().getEmoji().getName().equals(LEFT_ARROW) && currentPage > 0) {
                 updateHelpMessage(message, allCommands, currentPage - 1);

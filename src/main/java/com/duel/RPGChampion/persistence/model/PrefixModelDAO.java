@@ -13,6 +13,8 @@ public class PrefixModelDAO {
 
     private String prefix;
 
+    private String guildId;
+
     public String getPrefix() {
         return prefix;
     }
@@ -27,5 +29,13 @@ public class PrefixModelDAO {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getGuildId() {
+        return guildId;
+    }
+
+    public void setGuildId(String guildId) {
+        this.guildId = guildId;
     }
 }

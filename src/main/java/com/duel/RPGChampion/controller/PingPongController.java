@@ -2,17 +2,26 @@ package com.duel.RPGChampion.controller;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static com.duel.RPGChampion.controller.PrefixController.prefix;
 
 @Component
 public class PingPongController extends ListenerAdapter implements CommandController {
 
+    @Autowired
+    private final PrefixController prefixController;
+
+    public PingPongController(PrefixController prefixController) {
+        this.prefixController = prefixController;
+    }
+
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+        String prefix = prefixController.getPrefix(event);
         if (event.getAuthor().isBot()) {
             return;
         }
@@ -25,7 +34,9 @@ public class PingPongController extends ListenerAdapter implements CommandContro
     }
 
     @Override
-    public List<String> getCommands() {
+    public List<String> getCommands(String guildId) {
+        String prefix = prefixController.getPrefix(guildId);
+
         return List.of(prefix + "ping : returns pong");
     }
 }

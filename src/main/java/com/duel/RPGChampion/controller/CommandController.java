@@ -8,5 +8,5 @@ public interface CommandController {
 
     void onMessageReceived(MessageReceivedEvent event);
 
-    List<String> getCommands();
+    List<String> getCommands(String guildId);
 }
