@@ -1,8 +1,6 @@
 package com.duel.RPGChampion.persistence.model;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
 
 import java.util.Objects;
 import java.util.Set;
@@ -18,11 +16,11 @@ public class UserDAO {
 
     private String userId;
 
-    @OneToMany( cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<HeroDAO> heroes;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private HeroDAO selectedHero;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<HeroDAO> selectedHero;
 
     public Long getBaseId() {
         return baseId;
@@ -56,11 +54,11 @@ public class UserDAO {
         this.username = username;
     }
 
-    public HeroDAO getSelectedHero() {
+    public Set<HeroDAO> getSelectedHero() {
         return selectedHero;
     }
 
-    public void setSelectedHero(HeroDAO selectedHero) {
+    public void setSelectedHero(Set<HeroDAO> selectedHero) {
         this.selectedHero = selectedHero;
     }
 
@@ -69,12 +67,12 @@ public class UserDAO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UserDAO userDAO = (UserDAO) o;
-        return getBaseId() == userDAO.getBaseId() && Objects.equals(getUsername(), userDAO.getUsername()) && Objects.equals(getUserId(), userDAO.getUserId());
+        return Objects.equals(baseId, userDAO.baseId) && Objects.equals(username, userDAO.username) && Objects.equals(userId, userDAO.userId) && Objects.equals(heroes, userDAO.heroes) && Objects.equals(selectedHero, userDAO.selectedHero);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getBaseId(), getUsername(), getUserId());
+        return Objects.hash(baseId, username, userId, heroes, selectedHero);
     }
 
     @Override
@@ -83,6 +81,8 @@ public class UserDAO {
                 "baseId=" + baseId +
                 ", username='" + username + '\'' +
                 ", userId='" + userId + '\'' +
+                ", heroes=" + heroes +
+                ", selectedHero=" + selectedHero +
                 '}';
     }
 }

@@ -12,5 +12,5 @@ public interface HeroRepository extends JpaRepository<HeroDAO, Integer> {
 
     Optional<HeroDAO> findById(int heroId);
 
-    List<HeroDAO> findTop10ByOrderByLevelDesc();
+    List<HeroDAO> findTop10ByGuildIdOrderByLevelDesc(String guildId);
 }

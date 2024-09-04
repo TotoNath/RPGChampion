@@ -1,6 +1,7 @@
 package com.duel.RPGChampion.services;
 
 import com.duel.RPGChampion.persistence.mapper.UserMapper;
+import com.duel.RPGChampion.persistence.model.HeroDAO;
 import com.duel.RPGChampion.persistence.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,11 @@ public class UserService {
         return userRepository.findAll().size();
     }
 
-    public int getSelectedHeroId(String userId) {
-        return userRepository.findByUserId(userId).orElseThrow().getSelectedHero().getId();
+    public int getSelectedHeroId(String userId, String guildId) {
+        HeroDAO h = userRepository.findByUserId(userId).orElseThrow().getSelectedHero()
+                .stream()
+                .filter(heroDAO -> heroDAO.getGuildId().equals(guildId)).findFirst()
+                .orElseThrow(null);
+        return h != null ? h.getId() : -1;
     }
 }

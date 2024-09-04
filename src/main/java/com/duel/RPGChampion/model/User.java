@@ -13,7 +13,7 @@ public class User {
 
     private Set<Hero> heroes;
 
-    private Hero selectedHero;
+    private Set<Hero> selectedHero;
 
     public Long getBaseId() {
         return baseId;
@@ -47,11 +47,11 @@ public class User {
         this.heroes = heroes;
     }
 
-    public Hero getSelectedHero() {
+    public Set<Hero> getSelectedHero() {
         return selectedHero;
     }
 
-    public void setSelectedHero(Hero selectedHero) {
+    public void setSelectedHero(Set<Hero> selectedHero) {
         this.selectedHero = selectedHero;
     }
 
@@ -60,12 +60,12 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(getBaseId(), user.getBaseId()) && Objects.equals(getUsername(), user.getUsername()) && Objects.equals(getUserId(), user.getUserId()) && Objects.equals(getHeroes(), user.getHeroes()) && Objects.equals(getSelectedHero(), user.getSelectedHero());
+        return Objects.equals(baseId, user.baseId) && Objects.equals(username, user.username) && Objects.equals(userId, user.userId) && Objects.equals(heroes, user.heroes) && Objects.equals(selectedHero, user.selectedHero);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getBaseId(), getUsername(), getUserId(), getHeroes(), getSelectedHero());
+        return Objects.hash(baseId, username, userId, heroes, selectedHero);
     }
 
     @Override

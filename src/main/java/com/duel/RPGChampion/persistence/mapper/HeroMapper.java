@@ -11,27 +11,29 @@ public interface HeroMapper {
 
     HeroMapper INSTANCE = Mappers.getMapper(HeroMapper.class);
 
-    @Autowired UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+    @Autowired
+    UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
     HeroDAO mapHeroToHeroDAO(Hero hero);
 
-   default Hero mapHeroDAOToHero(HeroDAO hero) {
-       if ( hero == null ) {
-           return null;
-       }
+    default Hero mapHeroDAOToHero(HeroDAO hero) {
+        if (hero == null) {
+            return null;
+        }
 
-       Hero hero1 = new Hero();
+        Hero hero1 = new Hero();
 
-       hero1.setHp( hero.getHp() );
-       hero1.setStrength( hero.getStrength() );
-       hero1.setAgility( hero.getAgility() );
-       hero1.setLevel( hero.getLevel() );
-       hero1.setExperience( hero.getExperience() );
-       hero1.setId( hero.getId() );
-       hero1.setName( hero.getName() );
-       hero1.setAge( hero.getAge() );
-       hero1.setGender( hero.getGender() );
+        hero1.setHp(hero.getHp());
+        hero1.setStrength(hero.getStrength());
+        hero1.setAgility(hero.getAgility());
+        hero1.setLevel(hero.getLevel());
+        hero1.setExperience(hero.getExperience());
+        hero1.setId(hero.getId());
+        hero1.setName(hero.getName());
+        hero1.setAge(hero.getAge());
+        hero1.setGender(hero.getGender());
+        hero1.setGuildId(hero.getGuildId());
 
-       return hero1;
-   }
+        return hero1;
+    }
 }

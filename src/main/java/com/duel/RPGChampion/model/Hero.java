@@ -14,6 +14,8 @@ public class Hero extends Entity {
 
     private User user;
 
+    private String guildId;
+
     public int getId() {
         return id;
     }
@@ -54,18 +56,26 @@ public class Hero extends Entity {
         this.user = user;
     }
 
+    public String getGuildId() {
+        return guildId;
+    }
+
+    public void setGuildId(String guildId) {
+        this.guildId = guildId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Hero hero = (Hero) o;
-        return getId() == hero.getId() && getAge() == hero.getAge() && Objects.equals(getName(), hero.getName()) && getGender() == hero.getGender() && Objects.equals(getUser(), hero.getUser());
+        return id == hero.id && age == hero.age && Objects.equals(name, hero.name) && gender == hero.gender && Objects.equals(user, hero.user) && Objects.equals(guildId, hero.guildId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), getId(), getName(), getAge(), getGender(), getUser());
+        return Objects.hash(super.hashCode(), id, name, age, gender, user, guildId);
     }
 
     @Override
@@ -76,10 +86,11 @@ public class Hero extends Entity {
                 ", age=" + age +
                 ", gender=" + gender +
                 ", user=" + user +
+                ", guildId='" + guildId + '\'' +
                 '}';
     }
 
-    public String toFriendlyString(){
-        return name + " is " + age + " years old, is a " + gender + " has " + super.getHp() + "hp with " + super.getStrength() + " strength and " + super.getAgility() +" ability\n\t\tLVL :" + super.getLevel() + "\tExperience :" + super.getExperience();
+    public String toFriendlyString() {
+        return name + " is " + age + " years old, is a " + gender + " has " + super.getHp() + "hp with " + super.getStrength() + " strength and " + super.getAgility() + " ability\n\t\tLVL :" + super.getLevel() + "\tExperience :" + super.getExperience();
     }
 }
