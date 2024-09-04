@@ -114,6 +114,7 @@ public class HeroService {
      * @param guildId  the discord server id
      * @return true if was suppressed false otherwise
      */
+    //Check why there is orphelin heroes ..
     @Transactional
     public boolean deleteHero(String heroName, String userId, String guildId) {
         UserDAO userDAO = userRepository.findByUserId(userId).orElseThrow();
