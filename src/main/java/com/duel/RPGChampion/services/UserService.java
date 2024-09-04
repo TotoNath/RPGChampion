@@ -23,7 +23,7 @@ public class UserService {
         HeroDAO h = userRepository.findByUserId(userId).orElseThrow().getSelectedHero()
                 .stream()
                 .filter(heroDAO -> heroDAO.getGuildId().equals(guildId)).findFirst()
-                .orElseThrow(null);
+                .orElse(null);
         return h != null ? h.getId() : -1;
     }
 }

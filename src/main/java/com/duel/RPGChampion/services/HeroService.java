@@ -14,7 +14,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * The hero Service
@@ -122,8 +121,8 @@ public class HeroService {
         Set<HeroDAO> heroes = userDAO.getHeroes();
         Set<HeroDAO> selectedHeroes = userDAO.getSelectedHero();
 
-        removeAllHeroes(heroName, guildId, heroes, heroes);
-        removeAllHeroes(heroName, guildId, selectedHeroes, heroes);
+        removeAllHeroes(heroName, guildId, heroes);
+        removeAllHeroes(heroName, guildId, selectedHeroes);
 
         userDAO.setHeroes(heroes);
         userDAO.setSelectedHero(selectedHeroes);
@@ -134,11 +133,11 @@ public class HeroService {
                 wasHeroSuppressedFromHeroes(userDAO.getSelectedHero(), heroName, guildId);
     }
 
-    private void removeAllHeroes(String heroName, String guildId, Set<HeroDAO> selectedHeroes, Set<HeroDAO> heroes) {
-        Stream<HeroDAO> concernedHeroesA = heroes.stream().filter(hero -> hero.getName().equals(heroName) && hero.getGuildId().equals(guildId));
-        Stream<HeroDAO> concernedHeroesB = heroes.stream().filter(hero -> hero.getName().equals(heroName) && hero.getGuildId().equals(guildId));
-        selectedHeroes.removeAll(concernedHeroesA.collect(Collectors.toSet()));
-        this.heroRepository.deleteAll(concernedHeroesB.toList());
+    private void removeAllHeroes(String heroName, String guildId, Set<HeroDAO> heroDAOSet) {
+        Set<HeroDAO> concernedHeroesA = heroDAOSet.stream().filter(hero -> hero.getName().equals(heroName) && hero.getGuildId().equals(guildId)).collect(Collectors.toSet());
+        List<HeroDAO> concernedHeroesB = heroDAOSet.stream().filter(hero -> hero.getName().equals(heroName) && hero.getGuildId().equals(guildId)).toList();
+        heroDAOSet.removeAll(concernedHeroesA);
+        this.heroRepository.deleteAll(concernedHeroesB);
     }
 
     /**
