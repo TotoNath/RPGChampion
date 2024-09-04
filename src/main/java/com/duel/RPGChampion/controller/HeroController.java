@@ -88,6 +88,8 @@ public class HeroController extends ListenerAdapter implements CommandController
             } else {
                 sendLongMessage(event, combatOutput);
             }
+        } else {
+            event.getChannel().sendMessage("You need first to create a hero and select him/her/it").queue();
         }
     }
 
@@ -150,7 +152,6 @@ public class HeroController extends ListenerAdapter implements CommandController
             });
             ret.append("You have ").append(heroes.size()).append(" heroes.\n");
         }
-
 
         event.getChannel().sendMessage(ret.toString()).queue();
     }
