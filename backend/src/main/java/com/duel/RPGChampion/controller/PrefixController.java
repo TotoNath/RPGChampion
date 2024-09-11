@@ -2,10 +2,8 @@ package com.duel.RPGChampion.controller;
 
 import com.duel.RPGChampion.persistence.model.PrefixModelDAO;
 import com.duel.RPGChampion.persistence.repository.PrefixRepository;
-import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;

@@ -22,7 +22,7 @@ public class UserService {
     public int getSelectedHeroId(String userId, String guildId) {
         HeroDAO h = userRepository.findByUserId(userId).orElseThrow().getSelectedHero()
                 .stream()
-                .filter(heroDAO -> heroDAO.getGuildId().equals(guildId)).findFirst()
+                .filter(heroDAO -> heroDAO.getGuildId().equals(guildId) && heroDAO.getAfk() == null).findFirst()
                 .orElse(null);
         return h != null ? h.getId() : -1;
     }

@@ -1,6 +1,7 @@
 package com.duel.RPGChampion.controller;
 
 import com.duel.RPGChampion.model.Hero;
+import com.duel.RPGChampion.persistence.model.HeroDAO;
 import com.duel.RPGChampion.services.CombatService;
 import com.duel.RPGChampion.services.HeroService;
 import com.duel.RPGChampion.services.UserService;
@@ -52,7 +53,33 @@ public class HeroController extends ListenerAdapter implements CommandController
             renameHero(event, command, prefix);
         } else if (command.startsWith(prefix + "leaderboard")) {
             showLeaderboard(event);
+        }else if (command.startsWith(prefix + "afk")) {
+            afk(event);
+        }else if (command.startsWith(prefix + "wakeUp")) {
+            wakeUp(event);
         }
+    }
+
+    private void wakeUp(MessageReceivedEvent event) {
+        String userId = event.getAuthor().getId();
+        String username = event.getAuthor().getName();
+        int isNowAwake = heroService.wakeUp(userId, event.getGuild().getId());
+        if (isNowAwake!=-1) {
+            event.getChannel().sendMessage(username + " currently selected hero is now back home and won "+isNowAwake+" xp").queue();
+        } else {
+            event.getChannel().sendMessage(username + " selected hero wasn't able to went back home !").queue();
+        }
+    }
+
+    private void afk(MessageReceivedEvent event) {
+            String userId = event.getAuthor().getId();
+            String username = event.getAuthor().getName();
+            boolean isNowAfk = heroService.afk(userId, event.getGuild().getId());
+            if (isNowAfk) {
+                event.getChannel().sendMessage(username + " currently selected hero is now exploring").queue();
+            } else {
+                event.getChannel().sendMessage(username + " selected hero wasn't able to go on a new adventure, maybe he is on one already !").queue();
+            }
     }
 
     private void showLeaderboard(MessageReceivedEvent event) {
@@ -89,7 +116,7 @@ public class HeroController extends ListenerAdapter implements CommandController
                 sendLongMessage(event, combatOutput);
             }
         } else {
-            event.getChannel().sendMessage("You need first to create a hero and select him/her/it").queue();
+            event.getChannel().sendMessage("You need first to create a hero and select him/her/it or wake him up from his adventure").queue();
         }
     }
 
@@ -151,6 +178,10 @@ public class HeroController extends ListenerAdapter implements CommandController
                 i.getAndIncrement();
             });
             ret.append("You have ").append(heroes.size()).append(" heroes.\n");
+            HeroDAO heroDAO = heroService.getSelectedHero(event.getAuthor().getId(), event.getGuild().getId());
+            if(heroDAO != null) {
+                ret.append("Your selected Hero is ").append(heroDAO.getName()).append(" .\n");
+            }
         }
 
         event.getChannel().sendMessage(ret.toString()).queue();
@@ -177,8 +208,10 @@ public class HeroController extends ListenerAdapter implements CommandController
                 prefix + "getHeroes : returns your heroes",
                 prefix + "deleteHero <heroName> : Deletes a hero",
                 prefix + "heroesCount : The number of heroes created",
-                prefix + "selectHero <heroName> : Selects ur hero for several action such as !pve",
+                prefix + "selectHero <heroName> : Selects ur hero for several action such as !pve. You can select hero if you have any other hero afk",
                 prefix + "renameHero <heroName> : Renames your selected hero",
+                prefix + "afk : Your selected hero gains xp each 1/4 hour but he can't fight pve neither pvp until wakeUp then he gains the xp",
+                prefix + "wakeUp : Your selected hero gains xp for each 1/4 hour and can now fight pve and pvp",
                 prefix + "pve : Your hero goes for a walk ... who knows what will happen ?");
     }
 }
