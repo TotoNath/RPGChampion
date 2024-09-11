@@ -244,7 +244,7 @@ public class HeroService {
             }
         }
 
-        return ret;
+        return ret; 
     }
 
     public int wakeUp(String userId, String guildId) {
