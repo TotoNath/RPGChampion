@@ -1,5 +1,6 @@
 package com.duel.RPGChampion.model;
 
+import java.sql.Timestamp;
 import java.util.Objects;
 
 public class Hero extends Entity {
@@ -15,6 +16,8 @@ public class Hero extends Entity {
     private User user;
 
     private String guildId;
+
+    private Timestamp afk;
 
     public int getId() {
         return id;
@@ -64,18 +67,26 @@ public class Hero extends Entity {
         this.guildId = guildId;
     }
 
+    public Timestamp getAfk() {
+        return afk;
+    }
+
+    public void setAfk(Timestamp afk) {
+        this.afk = afk;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Hero hero = (Hero) o;
-        return id == hero.id && age == hero.age && Objects.equals(name, hero.name) && gender == hero.gender && Objects.equals(user, hero.user) && Objects.equals(guildId, hero.guildId);
+        return id == hero.id && age == hero.age && Objects.equals(name, hero.name) && gender == hero.gender && Objects.equals(user, hero.user) && Objects.equals(guildId, hero.guildId) && Objects.equals(afk, hero.afk);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, name, age, gender, user, guildId);
+        return Objects.hash(super.hashCode(), id, name, age, gender, user, guildId, afk);
     }
 
     @Override
@@ -87,10 +98,11 @@ public class Hero extends Entity {
                 ", gender=" + gender +
                 ", user=" + user +
                 ", guildId='" + guildId + '\'' +
+                ", afk=" + afk +
                 '}';
     }
 
     public String toFriendlyString() {
-        return name + " is " + age + " years old, is a " + gender + " has " + super.getHp() + "hp with " + super.getStrength() + " strength and " + super.getAgility() + " ability\n\t\tLVL :" + super.getLevel() + "\tExperience :" + super.getExperience();
+        return name + " is " + age + " years old, is a " + gender + " has " + super.getHp() + "hp with " + super.getStrength() + " strength and " + super.getAgility() + " ability\n\t\tLVL :" + super.getLevel() + "\tExperience :" + super.getExperience() + "\t" + (this.afk != null ? "Is Exploring" : "Is Home");
     }
 }

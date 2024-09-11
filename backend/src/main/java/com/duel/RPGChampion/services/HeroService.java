@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -229,5 +230,52 @@ public class HeroService {
         }
 
         return ret.toString();
+    }
+
+    public boolean afk(String userId, String guildId) {
+        boolean ret = false;
+        UserDAO userDAO = userRepository.findByUserId(userId).orElseThrow(null);
+        if (userDAO != null) {
+            HeroDAO selectedHeroDAO = userDAO.getSelectedHero().stream().filter(heroDAO -> heroDAO.getGuildId().equals(guildId)).findFirst().orElse(null);
+            if (selectedHeroDAO != null && selectedHeroDAO.getAfk() == null) {
+                selectedHeroDAO.setAfk(new Timestamp(System.currentTimeMillis()));
+                selectedHeroDAO = heroRepository.save(selectedHeroDAO);
+                ret = selectedHeroDAO.getAfk() != null;
+            }
+        }
+
+        return ret;
+    }
+
+    public int wakeUp(String userId, String guildId) {
+        int ret = -1;
+        UserDAO userDAO = userRepository.findByUserId(userId).orElseThrow(null);
+        if (userDAO != null) {
+            HeroDAO selectedHeroDAO = userDAO.getSelectedHero().stream().filter(heroDAO -> heroDAO.getGuildId().equals(guildId)).findFirst().orElse(null);
+            if (selectedHeroDAO != null && selectedHeroDAO.getAfk() != null) {
+                long milliseconds = new Timestamp(System.currentTimeMillis()).getTime() - selectedHeroDAO.getAfk().getTime();
+                long expWon = milliseconds / 1000 / 900; // 1 xp point for 1/4 hour afk
+                selectedHeroDAO.setAfk(null);
+                selectedHeroDAO.setExperience(selectedHeroDAO.getExperience() + (int) expWon);
+                heroRepository.save(selectedHeroDAO);
+                ret = (int) expWon;
+            }
+        }
+
+        return ret;
+    }
+
+
+    public boolean heroIsAfk(HeroDAO heroDAO) {
+        return heroDAO.getAfk() != null;
+    }
+
+    public HeroDAO getSelectedHero(String userId, String guildId) {
+        HeroDAO ret = null;
+        UserDAO userDAO = userRepository.findByUserId(userId).orElseThrow(null);
+        if (userDAO != null) {
+            ret = userDAO.getSelectedHero().stream().filter(heroDAO -> heroDAO.getGuildId().equals(guildId)).findFirst().orElse(null);
+        }
+        return ret;
     }
 }

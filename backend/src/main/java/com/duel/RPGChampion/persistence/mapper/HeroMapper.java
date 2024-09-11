@@ -33,6 +33,7 @@ public interface HeroMapper {
         hero1.setAge(hero.getAge());
         hero1.setGender(hero.getGender());
         hero1.setGuildId(hero.getGuildId());
+        hero1.setAfk(hero.getAfk());
 
         return hero1;
     }

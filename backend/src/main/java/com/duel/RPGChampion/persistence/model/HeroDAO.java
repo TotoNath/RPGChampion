@@ -3,6 +3,7 @@ package com.duel.RPGChampion.persistence.model;
 import com.duel.RPGChampion.model.Gender;
 import jakarta.persistence.*;
 
+import java.sql.Timestamp;
 import java.util.Objects;
 import java.util.Random;
 
@@ -32,11 +33,14 @@ public class HeroDAO {
 
     private String guildId;
 
+    private Timestamp afk;
+
     public HeroDAO() {
         Random random = new Random();
         age = random.nextInt(100);
         gender = Gender.values()[random.nextInt(Gender.values().length)];
         hp = 100;
+        afk = null;
         calculateStrength();
         calculateAgility();
     }
@@ -142,17 +146,25 @@ public class HeroDAO {
         this.guildId = guildId;
     }
 
+    public Timestamp getAfk() {
+        return afk;
+    }
+
+    public void setAfk(Timestamp afk) {
+        this.afk = afk;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HeroDAO heroDAO = (HeroDAO) o;
-        return id == heroDAO.id && age == heroDAO.age && hp == heroDAO.hp && strength == heroDAO.strength && agility == heroDAO.agility && level == heroDAO.level && experience == heroDAO.experience && Objects.equals(name, heroDAO.name) && gender == heroDAO.gender && Objects.equals(guildId, heroDAO.guildId);
+        return id == heroDAO.id && age == heroDAO.age && hp == heroDAO.hp && strength == heroDAO.strength && agility == heroDAO.agility && level == heroDAO.level && experience == heroDAO.experience && Objects.equals(name, heroDAO.name) && gender == heroDAO.gender && Objects.equals(guildId, heroDAO.guildId) && Objects.equals(afk, heroDAO.afk);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, age, gender, hp, strength, agility, level, experience, guildId);
+        return Objects.hash(id, name, age, gender, hp, strength, agility, level, experience, guildId, afk);
     }
 
     @Override
@@ -168,6 +180,7 @@ public class HeroDAO {
                 ", level=" + level +
                 ", experience=" + experience +
                 ", guildId='" + guildId + '\'' +
+                ", afk=" + afk +
                 '}';
     }
 }
