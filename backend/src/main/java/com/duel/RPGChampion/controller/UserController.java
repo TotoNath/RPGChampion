@@ -1,6 +1,7 @@
 package com.duel.RPGChampion.controller;
 
 import com.duel.RPGChampion.services.UserService;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,12 @@ public class UserController extends ListenerAdapter implements CommandController
         String lowerCommand = command.toLowerCase();
 
         if (lowerCommand.equalsIgnoreCase(prefixController.getPrefix(event) + "playerCount")) {
-            event.getChannel().sendMessage("The number of all players is : " + userService.getPlayerCount() + "\n").queue();
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setTitle("Player Count 👥");
+            embed.setColor(0x3498db); // Couleur bleue
+            embed.setDescription("The number of all players is: **" + userService.getPlayerCount() + "**.");
+
+            event.getChannel().sendMessageEmbeds(embed.build()).queue();
         }
     }
 
