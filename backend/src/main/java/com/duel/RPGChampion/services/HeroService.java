@@ -244,7 +244,7 @@ public class HeroService {
             }
         }
 
-        return ret; 
+        return ret;
     }
 
     public int wakeUp(String userId, String guildId) {
@@ -257,6 +257,8 @@ public class HeroService {
                 long expWon = milliseconds / 1000 / 900; // 1 xp point for 1/4 hour afk
                 selectedHeroDAO.setAfk(null);
                 selectedHeroDAO.setExperience(selectedHeroDAO.getExperience() + (int) expWon);
+                Long currentGold = userDAO.getGold();
+                userDAO.setGold(currentGold + (expWon * 2L));
                 heroRepository.save(selectedHeroDAO);
                 ret = (int) expWon;
             }

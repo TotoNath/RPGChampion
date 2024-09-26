@@ -1,6 +1,7 @@
 package com.duel.RPGChampion.controller;
 
 import com.duel.RPGChampion.model.Hero;
+import com.duel.RPGChampion.persistence.model.UserDAO;
 import com.duel.RPGChampion.services.CombatService;
 import com.duel.RPGChampion.services.HeroService;
 import com.duel.RPGChampion.services.UserService;
@@ -171,7 +172,7 @@ public class HeroController extends ListenerAdapter implements CommandController
         EmbedBuilder embed = new EmbedBuilder();
 
         if (heroId != -1) {
-            String combatOutput = combatService.startCombat(heroId);
+            String combatOutput = combatService.startCombat(heroId,userId);
 
             if (combatOutput.length() <= 2000) {
                 embed.setTitle("Combat Result ⚔️");
@@ -268,6 +269,7 @@ public class HeroController extends ListenerAdapter implements CommandController
 
     private void getHeroes(MessageReceivedEvent event) {
         List<Hero> heroes = heroService.getHeroesOfUser(event.getAuthor().getId(), event.getGuild().getId());
+        UserDAO userDAO = userService.getUser(event.getAuthor().getId());
 
         final String[] user = {event.getAuthor().getName()};
         user[0] = user[0].substring(0, 1).toUpperCase() + user[0].substring(1);
@@ -308,7 +310,7 @@ public class HeroController extends ListenerAdapter implements CommandController
 
             // Ajout des informations du héros dans l'embed
             embed.addBlankField(true);
-            embed.setDescription("\n\n" + heroStats);
+            embed.setDescription("\n\n" +"🪙 **Global Tresory**: "+userDAO.getGold() +"\n\n"+heroStats);
             embed.addBlankField(true);
             embed.setFooter(String.format("%d/%d  \t\t\tcurrent hero being displayed : %s", heroIndex + 1, heroes.size(), hero.getName()));
 
@@ -334,7 +336,7 @@ public class HeroController extends ListenerAdapter implements CommandController
 
         );
         initialEmbed.addBlankField(true);
-        initialEmbed.setDescription("\n\n" + initialHeroStats);
+        initialEmbed.setDescription("\n\n" +"🪙 **Global Tresory**: "+userDAO.getGold() +"\n\n"+initialHeroStats);
         initialEmbed.addBlankField(true);
         manageGetHeroesPagination(event, initialEmbed, userId, index, heroes, updateHeroDisplay);
     }

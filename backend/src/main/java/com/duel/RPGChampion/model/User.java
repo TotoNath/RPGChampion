@@ -15,6 +15,8 @@ public class User {
 
     private Set<Hero> selectedHero;
 
+    private Long gold;
+
     public Long getBaseId() {
         return baseId;
     }
@@ -55,17 +57,25 @@ public class User {
         this.selectedHero = selectedHero;
     }
 
+    public Long getGold() {
+        return gold;
+    }
+
+    public void setGold(Long gold) {
+        this.gold = gold;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(baseId, user.baseId) && Objects.equals(username, user.username) && Objects.equals(userId, user.userId) && Objects.equals(heroes, user.heroes) && Objects.equals(selectedHero, user.selectedHero);
+        return Objects.equals(baseId, user.baseId) && Objects.equals(username, user.username) && Objects.equals(userId, user.userId) && Objects.equals(heroes, user.heroes) && Objects.equals(selectedHero, user.selectedHero) && Objects.equals(gold, user.gold);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(baseId, username, userId, heroes, selectedHero);
+        return Objects.hash(baseId, username, userId, heroes, selectedHero, gold);
     }
 
     @Override
@@ -76,6 +86,7 @@ public class User {
                 ", userId='" + userId + '\'' +
                 ", heroes=" + heroes +
                 ", selectedHero=" + selectedHero +
+                ", gold=" + gold +
                 '}';
     }
 }

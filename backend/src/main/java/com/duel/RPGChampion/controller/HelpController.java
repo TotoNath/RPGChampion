@@ -93,7 +93,7 @@ public class HelpController extends ListenerAdapter implements CommandController
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         Message message = event.retrieveMessage().complete();
-        if (message.getAuthor().isBot() && !Objects.requireNonNull(event.getUser()).isBot()) {
+        if (message.getAuthor().isBot() && !Objects.requireNonNull(event.getUser()).isBot() && message.getEmbeds().get(0).getTitle().contains("Commands")) {
             int[] pages = getCurrentAndTotalPages(Objects.requireNonNull(message.getEmbeds().get(0).getTitle()));
             int currentPage = pages[0];
             int totalPages = pages[1];
