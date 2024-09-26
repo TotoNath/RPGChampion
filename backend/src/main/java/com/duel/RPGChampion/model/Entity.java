@@ -58,6 +58,10 @@ public abstract class Entity {
     public boolean attack(Entity target) {
         Random rand = new Random();
         int attackChance = rand.nextInt(100);
+        int bonus = 20; // Bonus de chance d'attaque augmenté pour le joueur
+        if (this instanceof Hero) {
+            attackChance += bonus;
+        }
         if (attackChance < this.strength) {
             target.hp -= this.strength;
             return true;
@@ -68,6 +72,10 @@ public abstract class Entity {
     public boolean dodge() {
         Random rand = new Random();
         int dodgeChance = rand.nextInt(100);
+        int bonus = 20; // Bonus de chance d'esquive augmenté pour le joueur
+        if (this instanceof Hero) {
+            dodgeChance += bonus;
+        }
         return dodgeChance < this.agility;
     }
 
@@ -94,4 +102,6 @@ public abstract class Entity {
                 ", experience=" + experience +
                 '}';
     }
+
+    public abstract Long getCoins();
 }

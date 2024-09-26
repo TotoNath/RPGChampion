@@ -1,7 +1,6 @@
 package com.duel.RPGChampion.services;
 
-import com.duel.RPGChampion.model.Bandit;
-import com.duel.RPGChampion.model.Hero;
+import com.duel.RPGChampion.model.*;
 import com.duel.RPGChampion.persistence.mapper.HeroMapper;
 import com.duel.RPGChampion.persistence.model.HeroDAO;
 import com.duel.RPGChampion.persistence.model.UserDAO;
@@ -10,6 +9,8 @@ import com.duel.RPGChampion.persistence.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Random;
 
 @Service
 public class CombatService {
@@ -22,21 +23,15 @@ public class CombatService {
 
     private static final String HERO_NOT_FOUND = "Hero not found!";
 
-    private static final String HERO_IS_DEAD = "Hero is dead!\n";
-
-    private static final String BANDIT_IS_DEAD = "Bandit is dead!\n";
-
     private static final int PVE_XP_WON = 50;
 
-    private static final int NEXT_XP_LEVEL_SCALE = 100;
+    public static final int NEXT_XP_LEVEL_SCALE = 100;
 
-    private static final int DIFFICULTY = 2;
+    public static final int NEXT_LOL_STRENGTH_BONUS = 2;
 
-    private static final int NEXT_LOL_STRENGTH_BONUS = 2;
+    public static final int NEXT_LVL_ABILITY_BONUS = 2;
 
-    private static final int NEXT_LVL_ABILITY_BONUS = 2;
-
-    private static final int NEXT_LVL_HEALTH_BONUS = 10;
+    public static final int NEXT_LVL_HEALTH_BONUS = 10;
 
     @Autowired
     private UserRepository userRepository;
@@ -56,50 +51,54 @@ public class CombatService {
             return HERO_NOT_FOUND;
         }
 
-        Bandit bandit = generateBandit(hero);
+        Entity enemy = generateEnemy(hero);
 
-        while (hero.getHp() > 0 && bandit.getHp() > 0) {
-            hero.attack(bandit);
+        while (hero.getHp() > 0 && enemy.getHp() > 0) {
+            hero.attack(enemy);
 
-            if (bandit.getHp() > 0 && !bandit.dodge()) {
-                bandit.attack(hero);
+            if (enemy.getHp() > 0 && !enemy.dodge()) {
+                enemy.attack(hero);
             }
 
             if (hero.getHp() < 0) {
-                ret.append(HERO_IS_DEAD);
-                hero.setHp(0); // Marquez le héros comme mort
+                ret.append("Hero was killed by: ").append(enemy.getClass().getSimpleName()).append("\n");
+                hero.setHp(0); // Marque le héros comme mort
                 heroRepository.save(heroMapper.mapHeroToHeroDAO(hero));
                 break;
             }
 
-            if (bandit.getHp() <= 0) {
-                ret.append(BANDIT_IS_DEAD);
-                hero.setExperience(hero.getExperience() + PVE_XP_WON); // Gain d'XP
+            if (enemy.getHp() <= 0) {
+                ret.append("Hero killed a ").append(enemy.getClass().getSimpleName()).append("\n");
+                hero.setExperience(hero.getExperience() + PVE_XP_WON);
                 Long currentGold = userDAO.getGold();
-                userDAO.setGold(currentGold + PVE_XP_WON);
+                userDAO.setGold(currentGold + enemy.getCoins());
                 levelUp(hero);
                 heroRepository.save(heroMapper.mapHeroToHeroDAO(hero));
                 break;
             }
         }
         return ret.toString();
-
     }
+
 
 
     /**
-     * Méthode pour généré un Bandit suivant le héro
-     * @param hero héro à partir du quel on va calculer les attributs du bandit
-     * @return un bandit
+     * Méthode pour générer un ennemi suivant le héro
+     * @param hero héro à partir du quel on va calculer les attributs de l'adversaire
+     * @return un adversaire
      */
-    private Bandit generateBandit(Hero hero) {
-        Bandit bandit = new Bandit();
-        bandit.setLevel(hero.getLevel());
-        bandit.setHp(hero.getHp() / DIFFICULTY);
-        bandit.setStrength(hero.getStrength() / DIFFICULTY);
-        bandit.setAgility(hero.getAgility() / DIFFICULTY);
-        return bandit;
+    private Entity generateEnemy(Hero hero) {
+        Random random = new Random();
+        int enemyType = random.nextInt(3);
+
+        return switch (enemyType) {
+            case 0 -> new Warrior(hero.getLevel());
+            case 1 -> new Mage(hero.getLevel());
+            case 2 -> new Monster(hero.getLevel());
+            default -> new Bandit(hero.getLevel());
+        };
     }
+
 
     /**
      * Méthode utilisé pour le levelUp d'un héro
@@ -110,7 +109,7 @@ public class CombatService {
         if (hero.getExperience() >= xpToNextLevel) {
             hero.setLevel(hero.getLevel() + 1);
             hero.setExperience(hero.getExperience() - xpToNextLevel);
-            hero.setHp(hero.getHp() + NEXT_LVL_HEALTH_BONUS);
+            hero.setHp(hero.getHp() + NEXT_LVL_HEALTH_BONUS+100);
             hero.setStrength(hero.getStrength() + NEXT_LOL_STRENGTH_BONUS);
             hero.setAgility(hero.getAgility() + NEXT_LVL_ABILITY_BONUS);
         }

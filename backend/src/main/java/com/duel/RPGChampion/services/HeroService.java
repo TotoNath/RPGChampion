@@ -16,6 +16,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static com.duel.RPGChampion.services.CombatService.*;
+
 /**
  * The hero Service
  */
@@ -259,6 +261,7 @@ public class HeroService {
                 selectedHeroDAO.setExperience(selectedHeroDAO.getExperience() + (int) expWon);
                 Long currentGold = userDAO.getGold();
                 userDAO.setGold(currentGold + (expWon * 2L));
+                levelUp(selectedHeroDAO);
                 heroRepository.save(selectedHeroDAO);
                 ret = (int) expWon;
             }
@@ -279,5 +282,21 @@ public class HeroService {
             ret = userDAO.getSelectedHero().stream().filter(heroDAO -> heroDAO.getGuildId().equals(guildId)).findFirst().orElse(null);
         }
         return ret;
+    }
+
+
+    /**
+     * Méthode utilisé pour le levelUp d'un héro
+     * @param hero le héro à le level up
+     */
+    private void levelUp(HeroDAO hero) {
+        int xpToNextLevel = hero.getLevel() * (NEXT_XP_LEVEL_SCALE + hero.getLevel());
+        if (hero.getExperience() >= xpToNextLevel) {
+            hero.setLevel(hero.getLevel() + 1);
+            hero.setExperience(hero.getExperience() - xpToNextLevel);
+            hero.setHp(hero.getHp() + NEXT_LVL_HEALTH_BONUS+100);
+            hero.setStrength(hero.getStrength() + NEXT_LOL_STRENGTH_BONUS);
+            hero.setAgility(hero.getAgility() + NEXT_LVL_ABILITY_BONUS);
+        }
     }
 }
