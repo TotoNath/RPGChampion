@@ -3,7 +3,10 @@ package com.duel.RPGChampion.services;
 import com.duel.RPGChampion.model.Bandit;
 import com.duel.RPGChampion.model.Hero;
 import com.duel.RPGChampion.persistence.mapper.HeroMapper;
+import com.duel.RPGChampion.persistence.model.HeroDAO;
+import com.duel.RPGChampion.persistence.model.UserDAO;
 import com.duel.RPGChampion.persistence.repository.HeroRepository;
+import com.duel.RPGChampion.persistence.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,12 +38,21 @@ public class CombatService {
 
     private static final int NEXT_LVL_HEALTH_BONUS = 10;
 
-    @Transactional
-    public String startCombat(int heroId) {
-        StringBuilder ret = new StringBuilder();
+    @Autowired
+    private UserRepository userRepository;
 
+    /**
+     * PVE Combat methpd
+     * @param heroId the id of the user fighting
+     * @param userId the id of the user that launched the pve command
+     * @return the final state of combat
+     */
+    @Transactional
+    public String startCombat(int heroId, String userId) {
+        StringBuilder ret = new StringBuilder();
+        UserDAO userDAO = userRepository.findByUserId(userId).orElse(null);
         Hero hero = heroMapper.mapHeroDAOToHero(heroRepository.findById(heroId).orElse(null));
-        if (hero == null) {
+        if (hero == null || userDAO == null) {
             return HERO_NOT_FOUND;
         }
 
@@ -63,6 +75,8 @@ public class CombatService {
             if (bandit.getHp() <= 0) {
                 ret.append(BANDIT_IS_DEAD);
                 hero.setExperience(hero.getExperience() + PVE_XP_WON); // Gain d'XP
+                Long currentGold = userDAO.getGold();
+                userDAO.setGold(currentGold + PVE_XP_WON);
                 levelUp(hero);
                 heroRepository.save(heroMapper.mapHeroToHeroDAO(hero));
                 break;
