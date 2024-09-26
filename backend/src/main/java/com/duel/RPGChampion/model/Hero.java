@@ -76,6 +76,11 @@ public class Hero extends Entity {
     }
 
     @Override
+    public Long getCoins() {
+        return ((getLevel()+1)* 20L);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
