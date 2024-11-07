@@ -58,8 +58,13 @@ public class CombatService {
 
         Bandit bandit = generateBandit(hero);
 
+<<<<<<< Updated upstream
         while (hero.getHp() > 0 && bandit.getHp() > 0) {
             hero.attack(bandit);
+=======
+        while (true) {
+            hero.attack(enemy);
+>>>>>>> Stashed changes
 
             if (bandit.getHp() > 0 && !bandit.dodge()) {
                 bandit.attack(hero);
@@ -92,6 +97,7 @@ public class CombatService {
      * @param hero héro à partir du quel on va calculer les attributs du bandit
      * @return un bandit
      */
+<<<<<<< Updated upstream
     private Bandit generateBandit(Hero hero) {
         Bandit bandit = new Bandit();
         bandit.setLevel(hero.getLevel());
@@ -99,6 +105,18 @@ public class CombatService {
         bandit.setStrength(hero.getStrength() / DIFFICULTY);
         bandit.setAgility(hero.getAgility() / DIFFICULTY);
         return bandit;
+=======
+    private Entity generateEnemy(Hero hero) {
+        Random random = new Random();
+        int enemyType = random.nextInt(3);
+
+        return switch (enemyType) {
+            case 0 -> new Warrior(hero.getLevel()+1);
+            case 1 -> new Mage(hero.getLevel()+1);
+            case 2 -> new Monster(hero.getLevel()+1);
+            default -> new Bandit(hero.getLevel()+1);
+        };
+>>>>>>> Stashed changes
     }
 
     /**
