@@ -1,70 +1,89 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/constant/color.dart';
+import 'package:frontend/constant/text_styles.dart';
+import 'package:frontend/database/database.dart';
+import 'package:frontend/database/model/user_model.dart';
+import 'package:frontend/screen/home/home.dart';
+import 'package:frontend/screen/login/login.dart';
 import 'package:frontend/screen/onboarding/onboarding_page.dart';
+import 'package:frontend/utils/onboarding_utils.dart';
+import 'package:get/get.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
+    return GetMaterialApp(
+      title: 'RPGChampion App',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        brightness: Brightness.dark,
+        primaryColor: AppColors.background,
+        scaffoldBackgroundColor: AppColors.background,
+        textTheme: const TextTheme(
+          bodyLarge: AppTextStyles.primaryText,
+          bodyMedium: AppTextStyles.primaryText,
+        ),
+        buttonTheme: const ButtonThemeData(
+          buttonColor: AppColors.button,
+          textTheme: ButtonTextTheme.primary,
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.buttonText,
+          ),
+        ),
+        colorScheme: const ColorScheme.dark(
+          error: AppColors.error,
+          secondary: AppColors.success,
+          surface: AppColors.warning,
+          primary: AppColors.info,
+        ).copyWith(background: AppColors.background),
       ),
-      home: const OnboardingPage(),
+      home: SplashScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-
-  final String title;
-
+class SplashScreen extends StatefulWidget {
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkOnboardingStatus();
+  }
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  Future<void> _checkOnboardingStatus() async {
+    bool hasSeen = await hasSeenOnboarding();
+    if (hasSeen) {
+      final db = Database();
+      await db.init();
+      final userCollection = db.isar.users;
+      final userCount = await userCollection.count();
+
+      if (userCount != 0) {
+        Get.off(() => const HomePage());
+      } else {
+        Get.off(() => const LoginPage(title: "LoginPage"));
+      }
+    } else {
+      Get.off(() => const OnboardingPage());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
+    return const Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        child: CircularProgressIndicator(),
       ),
     );
   }
