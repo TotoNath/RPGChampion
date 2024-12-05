@@ -7,6 +7,8 @@ import 'package:frontend/screen/home/home.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
+import 'guilds_service.dart';
+
 final FlutterAppAuth appAuth = FlutterAppAuth();
 
 Future<void> loginWithDiscord() async {
@@ -65,27 +67,34 @@ Future<void> loginWithDiscord() async {
         print('User info saved: $username#$discriminator');
       } else {
         print('Failed to fetch user info: ${userResponse.statusCode}');
+        return;
       }
+      final botGuilds = await fetchBotGuilds();
 
       // Récupérer les guildes de l'utilisateur
-      final guildsResponse = await http.get(
+      final userGuildsResponse = await http.get(
         Uri.parse('https://discord.com/api/users/@me/guilds'),
         headers: {
           'Authorization': 'Bearer ${result.accessToken}',
         },
       );
 
-      if (guildsResponse.statusCode == 200) {
-        final guildsInfo = json.decode(guildsResponse.body);
+      if (userGuildsResponse.statusCode == 200) {
+        final userGuildsInfo = json.decode(userGuildsResponse.body);
 
         final db = Database();
         await db.init(); // Initialise la base de données
         final isar = db.isar;
         final guildCollection = isar.guilds;
 
-        // Sauvegarder les guildes dans la base de données
+        // Filtrer les guildes de l'utilisateur pour ne garder que celles où le bot est présent
+        final filteredGuilds = userGuildsInfo.where((guild) {
+          return botGuilds.contains(guild['id']);
+        }).toList();
+
+        // Sauvegarder les guildes filtrées dans la base de données
         await isar.writeTxn(() async {
-          for (var guildData in guildsInfo) {
+          for (var guildData in filteredGuilds) {
             final guild = Guild()
               ..guildId = guildData['id']
               ..name = guildData['name']
@@ -96,10 +105,10 @@ Future<void> loginWithDiscord() async {
           }
         });
 
-        print('Guilds info saved');
+        print('Filtered guilds info saved');
         Get.off(() => HomePage());
       } else {
-        print('Failed to fetch guilds: ${guildsResponse.statusCode}');
+        print('Failed to fetch user guilds: ${userGuildsResponse.statusCode}');
       }
     }
   } catch (e) {

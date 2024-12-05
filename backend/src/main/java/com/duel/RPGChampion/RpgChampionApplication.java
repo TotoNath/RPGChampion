@@ -1,6 +1,10 @@
 package com.duel.RPGChampion;
 
 import com.duel.RPGChampion.controller.*;
+import com.duel.RPGChampion.controller.help.HelpController;
+import com.duel.RPGChampion.controller.hero.HeroController;
+import com.duel.RPGChampion.controller.pingpong.PingPongController;
+import com.duel.RPGChampion.controller.user.UserController;
 import net.dv8tion.jda.api.JDA;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;

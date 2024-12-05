@@ -1,5 +1,7 @@
-package com.duel.RPGChampion.controller;
+package com.duel.RPGChampion.controller.hero;
 
+import com.duel.RPGChampion.controller.CommandController;
+import com.duel.RPGChampion.controller.PrefixController;
 import com.duel.RPGChampion.model.Hero;
 import com.duel.RPGChampion.persistence.model.UserDAO;
 import com.duel.RPGChampion.services.CombatService;
@@ -20,8 +22,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
-import static com.duel.RPGChampion.controller.HelpController.LEFT_ARROW;
-import static com.duel.RPGChampion.controller.HelpController.RIGHT_ARROW;
+import static com.duel.RPGChampion.controller.help.HelpController.LEFT_ARROW;
+import static com.duel.RPGChampion.controller.help.HelpController.RIGHT_ARROW;
 
 
 @Controller

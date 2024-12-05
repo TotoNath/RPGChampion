@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constant/color.dart';
+import 'package:frontend/database/database.dart';
 import 'package:frontend/database/model/hero_model.dart';
 import 'package:frontend/database/model/user_model.dart';
 import 'package:frontend/screen/hero_details/hero_details.dart';
 import 'package:get/get.dart';
+import 'package:frontend/service/hero_service.dart';
+import 'package:isar/isar.dart';
 
 class GuildDetailsPage extends StatefulWidget {
   final Guild guild;
@@ -15,67 +18,45 @@ class GuildDetailsPage extends StatefulWidget {
 }
 
 class _GuildDetailsPageState extends State<GuildDetailsPage> {
-  // Liste de héros (exemple)
-  List<HeroModel> heroes = [
-    HeroModel("Hero 1", 100, 10, 5),
-    HeroModel("Hero 2", 54, 9, 10),
-  ];
+  late Future<List<HeroModel>> _heroesFuture = Future.value([]);
 
-  // Méthode pour afficher le formulaire de création de héros
-  void _showAddHeroPopup(BuildContext context) {
-    final TextEditingController heroNameController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Ajouter un héros"),
-          content: TextField(
-            controller: heroNameController,
-            decoration: const InputDecoration(
-              labelText: "Nom du héros",
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Fermer la popup
-              },
-              child: const Text("Annuler"),
-            ),
-            ElevatedButton(
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(AppColors.success),
-                foregroundColor: WidgetStateProperty.all(AppColors.buttonText),
-              ),
-              onPressed: () {
-                if (heroNameController.text.trim().isNotEmpty) {
-                  setState(() {
-                    heroes.add(
-                        HeroModel(heroNameController.text.trim(), 100, 10, 10));
-                  });
-                  Navigator.of(context).pop(); // Fermer la popup
-                }
-              },
-              child: const Text("Ajouter"),
-            ),
-          ],
-        );
-      },
-    );
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
   }
+
+  Future<void> _loadUserData() async {
+    // Initialiser la base de données et sauvegarder l'utilisateur
+    final db = Database();
+    await db.init();
+    final isar = db.isar;
+
+    // Récupérer l'utilisateur connecté en utilisant discordId ou une autre clé
+    final user = await isar.users.get(0);
+
+    if (user != null) {
+      // Utiliser les informations récupérées pour appeler fetchHeroes
+      setState(() {
+        _heroesFuture = fetchHeroes(user.discordId, widget.guild.id as String);
+      });
+    } else {
+      // Gérer le cas où l'utilisateur n'est pas trouvé
+      setState(() {
+        _heroesFuture = Future.value([]); // Définit une liste vide
+      });
+      print('User not found');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 10),
-            // Titre du serveur
+            // En-tête du serveur
             CircleAvatar(
               backgroundImage: NetworkImage(widget.guild.iconUrl),
               backgroundColor: Colors.grey.shade200,
@@ -93,121 +74,93 @@ class _GuildDetailsPageState extends State<GuildDetailsPage> {
 
             // Liste des héros
             Expanded(
-              child: ListView.builder(
-                itemCount: heroes.length,
-                itemBuilder: (context, index) {
-                  final hero = heroes[index];
-                  return GestureDetector(
-                    onTap: () {
-                      // Aller vers la page HeroDetailsPage
-                      Get.to(
-                        () => HeroDetailsPage(
-                          hero: hero,
-                          guild: widget.guild,
+              child: FutureBuilder<List<HeroModel>>(
+                future: _heroesFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text("Erreur: ${snapshot.error}"));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text("Aucun héros trouvé."));
+                  }
+
+                  final heroes = snapshot.data!;
+
+                  return ListView.builder(
+                    itemCount: heroes.length,
+                    itemBuilder: (context, index) {
+                      final hero = heroes[index];
+                      return GestureDetector(
+                        onTap: () {
+                          Get.to(
+                                () => HeroDetailsPage(
+                                hero: hero, guild: widget.guild),
+                            transition: Transition.rightToLeftWithFade,
+                            duration: const Duration(milliseconds: 500),
+                          );
+                        },
+                        child: Center(
+                          child: HeroCard(hero: hero),
                         ),
-                        transition: Transition.rightToLeftWithFade,
-                        duration: const Duration(milliseconds: 500),
                       );
                     },
-                    child: Center(
-                      child: Container(
-                        width: 250,
-                        height: 250,
-                        margin: const EdgeInsets.symmetric(vertical: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Image de héros (placeholder)
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade400,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-
-                            // Nom du héros
-                            Text(
-                              hero.name,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-
-                            // Statistiques du héros
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text("${hero.hp} HP",
-                                    style: const TextStyle(fontSize: 16)),
-                                Text("${hero.ability} Ability",
-                                    style: const TextStyle(fontSize: 16)),
-                              ],
-                            ),
-                            const SizedBox(height: 5),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text("${hero.strength} Strength",
-                                    style: const TextStyle(fontSize: 16)),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
                   );
                 },
               ),
             ),
-
-            // Section des pièces d'or et bouton d'action
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Pièces d'or
-                  const Row(
-                    children: [
-                      Icon(Icons.monetization_on, color: Colors.amber),
-                      SizedBox(width: 5),
-                      Text(
-                        "50",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  // Bouton flottant (ajouter)
-                  FloatingActionButton(
-                    backgroundColor: AppColors.success,
-                    onPressed: () => _showAddHeroPopup(context),
-                    child: const Icon(
-                      Icons.add,
-                      size: 30,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class HeroCard extends StatelessWidget {
+  final HeroModel hero;
+
+  const HeroCard({Key? key, required this.hero}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 250,
+      height: 250,
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Image de héros
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade400,
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          const SizedBox(height: 10),
+          // Nom du héros
+          Text(hero.name,
+              style:
+              const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          // Stats
+          Text("${hero.hp} HP"),
+          Text("${hero.strength} Strength"),
+          Text("${hero.ability} Agility"),
+        ],
       ),
     );
   }
