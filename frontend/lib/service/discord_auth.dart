@@ -18,7 +18,7 @@ Future<void> loginWithDiscord() async {
       AuthorizationTokenRequest(
         '1261009296339111968', // Discord bot client id
         'rpgchampion://auth',
-        serviceConfiguration: AuthorizationServiceConfiguration(
+        serviceConfiguration: const AuthorizationServiceConfiguration(
           authorizationEndpoint: 'https://discord.com/api/oauth2/authorize',
           tokenEndpoint: 'https://discord.com/api/oauth2/token',
         ),

@@ -39,4 +39,15 @@ public class UserRoute {
                 "message", "The number of all players is: " + playerCount
         );
     }
+
+    @GetMapping("/gold")
+    public Map<String, Object> getGold() {
+        int playerCount = userService.getPlayerCount();
+
+        return Map.of(
+                "title", "Player Count 👥",
+                "playerCount", playerCount,
+                "message", "The number of all players is: " + playerCount
+        );
+    }
 }

@@ -3,7 +3,7 @@ import 'package:frontend/database/model/hero_model.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<HeroModel>> fetchHeroes(String userId, String guildId) async {
-  final url = Uri.parse("http://10.0.0.2/api/heroes/list?userId=$userId&guildId=$guildId");
+  final url = Uri.parse("http://10.0.2.2:8080/api/heroes/list?userId=$userId&guildId=$guildId");
 
   final response = await http.get(url);
 

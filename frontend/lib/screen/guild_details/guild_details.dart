@@ -33,12 +33,12 @@ class _GuildDetailsPageState extends State<GuildDetailsPage> {
     final isar = db.isar;
 
     // Récupérer l'utilisateur connecté en utilisant discordId ou une autre clé
-    final user = await isar.users.get(0);
+    final user = await isar.users.get(1);
 
     if (user != null) {
       // Utiliser les informations récupérées pour appeler fetchHeroes
       setState(() {
-        _heroesFuture = fetchHeroes(user.discordId, widget.guild.id as String);
+        _heroesFuture = fetchHeroes(user.discordId, widget.guild.guildId );
       });
     } else {
       // Gérer le cas où l'utilisateur n'est pas trouvé
@@ -157,9 +157,9 @@ class HeroCard extends StatelessWidget {
               const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
           // Stats
-          Text("${hero.hp} HP"),
-          Text("${hero.strength} Strength"),
-          Text("${hero.ability} Agility"),
+          Text("${hero.hp}\t\t❤️"),
+          Text("${hero.experience}\t\t ⭐ XP"),
+          Text("${hero.level}\t\t 🎯 Level"),
         ],
       ),
     );
