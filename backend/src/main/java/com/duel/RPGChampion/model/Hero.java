@@ -3,6 +3,9 @@ package com.duel.RPGChampion.model;
 import java.sql.Timestamp;
 import java.util.Objects;
 
+/**
+ * Hero Class
+ */
 public class Hero extends Entity {
 
     private int id;
