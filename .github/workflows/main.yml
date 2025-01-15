@@ -26,6 +26,12 @@ jobs:
           chmod 700 ~/.ssh
           echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
+      - name: Debug SSH Configuration
+        run: |
+          echo "Testing SSH connection..."
+          ssh -v "$SSH_IP" exit
+
+
       - name: Deploy Application
         run: |
           ssh "$SSH_IP" <<EOF
