@@ -9,44 +9,29 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    env:
-      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      SSH_IP: ${{ secrets.SSH_IP }}
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Setup SSH
-        run: |
-          which ssh-agent || (sudo apt-get update -y && sudo apt-get install openssh-client -y)
-          eval "$(ssh-agent -s)"
-          echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
-
-      - name: Debug SSH Configuration
-        run: |
-          echo "Testing SSH connection..."
-          ssh -v "$SSH_IP" exit
-
-
-      - name: Deploy Application
-        run: |
-          ssh "$SSH_IP" <<EOF
-          cd /root/projects/rpgchampion/RPGChampion
-          git pull --rebase
-          docker build -t backend-app ./backend
-          docker stop backend-container || true
-          docker rm backend-container || true
-          docker run -d \
-            -e APPLICATION_NAME=myapp \
-            --name backend-container \
-            -e TOKEN_DISC_BOT=${{ secrets.TOKEN_BOT }} \
-            -e DB_URL=${{ secrets.DB_URL }} \
-            -e DB_USER=${{ secrets.DB_USER }} \
-            -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            -p 8080:8080 \
-            backend-app
-          EOF
+      - name: Execute Remote SSH Command
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: root
+          private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd /root/projects/rpgchampion/RPGChampion
+            git pull --rebase
+            docker build -t backend-app ./backend
+            docker stop backend-container || true
+            docker rm backend-container || true
+            docker run -d \
+              -e APPLICATION_NAME=myapp \
+              --name backend-container \
+              -e TOKEN_DISC_BOT=${{ secrets.TOKEN_BOT }} \
+              -e DB_URL=${{ secrets.DB_URL }} \
+              -e DB_USER=${{ secrets.DB_USER }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -p 8080:8080 \
+              backend-app
