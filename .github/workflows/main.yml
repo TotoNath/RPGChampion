@@ -29,7 +29,7 @@ jobs:
             docker run -d \
               -e APPLICATION_NAME=myapp \
               --name backend-container \
-              -e TOKEN_DISC_BOT=${{ secrets.TOKEN_BOT }} \
+              -e TOKEN_DISC_BOT=${{ secrets.TOKEN_DISC_BOT }} \
               -e DB_URL=${{ secrets.DB_URL }} \
               -e DB_USER=${{ secrets.DB_USER }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
