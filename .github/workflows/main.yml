@@ -27,10 +27,10 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Install dependencies
-        run: mvn install -DskipTests
+        run: mvn -f backend/pom.xml install -DskipTests
 
       - name: Run tests
-        run: mvn test
+        run: mvn -f backend/pom.xml test
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
@@ -41,7 +41,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Verify Sonar Quality Gate
-        run: mvn sonar:sonar -Dsonar.qualitygate.wait=true
+        run: mvn -f backend/pom.xml sonar:sonar -Dsonar.qualitygate.wait=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
@@ -63,7 +63,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_IP }} << 'EOF'
           cd /path/to/project
           git pull origin main
-          docker build -t backend-app .
+          docker build -t backend-app ./backend
           docker stop backend-container || true
           docker rm backend-container || true
           docker run -d -e APPLICATION_NAME=myapp --name backend-container -e TOKEN_DISC_BOT=${{ secrets.TOKEN_BOT }}  -e DB_URL=${{ secrets.DB_URL }}  -e DB_USER=${{ secrets.DB_USER }}  -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} -p 8080:8080  backend-app
