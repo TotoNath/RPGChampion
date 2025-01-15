@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build:
@@ -48,6 +45,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   deploy:
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
@@ -68,5 +66,4 @@ jobs:
           docker stop backend-container || true
           docker rm backend-container || true
           docker run -d -e APPLICATION_NAME=myapp --name backend-container -e TOKEN_DISC_BOT=${{ secrets.TOKEN_BOT }}  -e DB_URL=${{ secrets.DB_URL }}  -e DB_USER=${{ secrets.DB_USER }}  -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} -p 8080:8080  backend-app
-
           EOF
