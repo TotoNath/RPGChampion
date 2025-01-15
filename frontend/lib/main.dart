@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/constant/color.dart';
 import 'package:frontend/constant/text_styles.dart';
 import 'package:frontend/database/database.dart';
@@ -9,9 +11,12 @@ import 'package:frontend/screen/onboarding/onboarding_page.dart';
 import 'package:frontend/utils/onboarding_utils.dart';
 import 'package:get/get.dart';
 
-void main() {
+Future<void> main() async {
+  await dotenv.load();
   WidgetsFlutterBinding.ensureInitialized();
-
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
   runApp(MyApp());
 }
 

@@ -1,16 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:frontend/database/database.dart';
+import 'package:frontend/database/model/user_model.dart';
 import 'package:frontend/screen/hero_details/hero_details.dart';
 import 'package:frontend/screen/home/home.dart';
+import 'package:frontend/service/hero_service.dart';
 import 'package:get/get.dart';
 
-class heroDetailsHome extends StatelessWidget {
-  const heroDetailsHome({
+class HeroDetailsHome extends StatefulWidget {
+  const HeroDetailsHome({
     super.key,
     required this.widget,
   });
 
   final HeroDetailsPage widget;
+
+  @override
+  _HeroDetailsHomeState createState() => _HeroDetailsHomeState();
+}
+
+class _HeroDetailsHomeState extends State<HeroDetailsHome> {
+  bool isSelected = false;
+
+  Future<void> selectHero(
+      String heroName, String userId, String guildId) async {
+    final response = await selectHeroes(userId, guildId, heroName);
+
+    if (response.statusCode == 200) {
+      setState(() {
+        isSelected = true;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur : ${response.body}')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +49,7 @@ class heroDetailsHome extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 Get.to(
-                      () => const HomePage(),
+                  () => const HomePage(),
                   transition: Transition.rightToLeftWithFade,
                   duration: const Duration(milliseconds: 500),
                 );
@@ -32,12 +57,12 @@ class heroDetailsHome extends StatelessWidget {
               child: Row(
                 children: [
                   CircleAvatar(
-                    backgroundImage: NetworkImage(widget.guild.iconUrl),
+                    backgroundImage: NetworkImage(widget.widget.guild.iconUrl),
                     backgroundColor: Colors.grey.shade200,
                   ),
                   const Padding(padding: EdgeInsets.only(left: 10)),
                   Text(
-                    widget.guild.name,
+                    widget.widget.guild.name,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -49,98 +74,134 @@ class heroDetailsHome extends StatelessWidget {
             const Divider(thickness: 1, color: Colors.grey),
 
             // Informations du héros
-            Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      widget.hero.name,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                )),
+            GestureDetector(
+              onTap: () async {
+                final db = Database();
+                await db.init();
+                final isar = db.isar;
+                final user = await isar.users.get(1);
 
-            // Image et statistiques
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    // Image du héros
-                    Container(
-                      width: 200,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Icon(
-                        Icons.person,
-                        size: 100,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+                if (user == null) {
+                  Fluttertoast.showToast(
+                    msg: "Utilisateur introuvable.",
+                    gravity: ToastGravity.BOTTOM,
+                  );
+                  return;
+                }
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text(
-                          "❤️ : ${widget.hero.hp}",
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        Text(
-                          "🏋️‍♂️️ : ${widget.hero.strength}",
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text(
-                          "🤸 : ${widget.hero.ability}",
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
+                await selectHero(
+                  widget.widget.hero.name,
+                  user.discordId,
+                  widget.widget.guild.guildId,
+                );
+              },
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Gender : ${widget.hero.gender}",
-                          style: const TextStyle(fontSize: 16),
+                          widget.widget.hero.name,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  ),
+
+                  // Image et statistiques
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Text(
-                          "Level 🎯 : ${widget.hero.level}",
-                          style: const TextStyle(fontSize: 16),
+                        // Image du héros
+                        Container(
+                          width: 200,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Icon(
+                            Icons.person,
+                            size: 100,
+                            color: Colors.white,
+                          ),
                         ),
+                        const SizedBox(height: 20),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(
+                              "❤️ : ${widget.widget.hero.hp}",
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            Text(
+                              "🏋️‍♂️️ : ${widget.widget.hero.strength}",
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(
+                              "🤸 : ${widget.widget.hero.ability}",
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Gender : ${widget.widget.hero.gender}",
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Level 🎯 : ${widget.widget.hero.level}",
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "XP ⭐ : ${widget.widget.hero.experience}",
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                        if (isSelected || widget.widget.isSelected == widget.widget.hero.name) ...[
+                          const SizedBox(height: 10),
+                          const Text(
+                            "Ce héros est sélectionné",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "XP ⭐ : ${widget.hero.experience}",
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],

@@ -55,6 +55,8 @@ dependencies:
   path_provider: ^2.1.5
   flutter_launcher_icons: ^0.14.1
   http: ^1.2.2
+  fluttertoast: ^8.2.10
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -105,6 +107,7 @@ flutter:
 
 
   assets:
+    - .env
     - assets/logo.png
     - assets/icon_logo.png
     - assets/onBoarding/

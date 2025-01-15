@@ -1,10 +1,14 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+
+
+final String ip = dotenv.env["BACKEND_IP"] ?? "http://192.168.4.220:8080";
 
 Future<List<String>> fetchBotGuilds() async {
   try {
     final response = await http.get(
-      Uri.parse('http://10.0.2.2:8080/api/getBotGuilds'),
+      Uri.parse('$ip/api/getBotGuilds'),
     );
 
     if (response.statusCode == 200) {

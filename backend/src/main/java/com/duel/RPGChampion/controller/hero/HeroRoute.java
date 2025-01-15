@@ -1,6 +1,7 @@
 package com.duel.RPGChampion.controller.hero;
 
 import com.duel.RPGChampion.model.Hero;
+import com.duel.RPGChampion.persistence.model.HeroDAO;
 import com.duel.RPGChampion.services.CombatService;
 import com.duel.RPGChampion.services.HeroService;
 import com.duel.RPGChampion.services.UserService;
@@ -68,6 +69,18 @@ public class HeroRoute {
         }
     }
 
+    @GetMapping("/select")
+    public ResponseEntity<String> selectedHero(@RequestParam String heroName,
+                                             @RequestParam String userId,
+                                             @RequestParam String guildId) {
+        HeroDAO selectedHero = heroService.getSelectedHero(userId, guildId);
+        if (selectedHero != null) {
+            return ResponseEntity.ok(selectedHero.getName());
+        } else {
+            return ResponseEntity.badRequest().body("Failed to select hero " + heroName);
+        }
+    }
+
     @PostMapping("/pve")
     public ResponseEntity<String> fightPVE(@RequestParam String userId, @RequestParam String guildId) {
         int heroId = userService.getSelectedHeroId(userId, guildId);
@@ -95,9 +108,7 @@ public class HeroRoute {
         boolean isNowAfk = heroService.afk(userId, guildId);
         if (isNowAfk) {
             return ResponseEntity.ok("Hero is now AFK.");
-        } else {
-            return ResponseEntity.badRequest().body("Hero could not go AFK.");
-        }
+        } else return ResponseEntity.badRequest().body("Hero could not go AFK.");
     }
 
     @PostMapping("/wakeUp")

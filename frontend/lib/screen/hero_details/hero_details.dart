@@ -3,14 +3,18 @@ import 'package:frontend/constant/color.dart';
 import 'package:frontend/database/model/hero_model.dart';
 import 'package:frontend/database/model/user_model.dart';
 import 'package:frontend/screen/hero_details/hero_details_home.dart';
-import 'package:frontend/screen/home/home.dart';
-import 'package:get/get.dart';
+import 'package:frontend/service/hero_service.dart';
 
 class HeroDetailsPage extends StatefulWidget {
   final HeroModel hero;
   final Guild guild;
+  final String? isSelected;
 
-  const HeroDetailsPage({super.key, required this.hero, required this.guild});
+  const HeroDetailsPage(
+      {super.key,
+      required this.hero,
+      required this.guild,
+      required this.isSelected});
 
   @override
   State<HeroDetailsPage> createState() => _HeroDetailsPageState();
@@ -19,6 +23,42 @@ class HeroDetailsPage extends StatefulWidget {
 class _HeroDetailsPageState extends State<HeroDetailsPage> {
   // Page active (par défaut sur 'home')
   String activePage = 'home';
+  String heroCount = "0";
+
+  String leaderboard = "Loading ...";
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchHeroCount();
+    _fetchLeaderboard();
+  }
+
+  Future<void> _fetchHeroCount() async {
+    try {
+      final count = await getHeroCount();
+      setState(() {
+        heroCount = count;
+      });
+    } catch (e) {
+      setState(() {
+        heroCount = "Error";
+      });
+    }
+  }
+
+  Future<void> _fetchLeaderboard() async {
+    try {
+      final board = await getLeaderboard(widget.guild.guildId);
+      setState(() {
+        leaderboard = board;
+      });
+    } catch (e) {
+      setState(() {
+        leaderboard = "Error";
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +116,32 @@ class _HeroDetailsPageState extends State<HeroDetailsPage> {
                 ),
 
                 const Spacer(),
+
+                const SizedBox(height: 20),
+                _buildDrawerIcon(
+                  context: context,
+                  page: 'info',
+                  icon: Icons.info,
+                  selectedIcon: Icons.info_outline,
+                  onPressed: () {
+                    setState(() {
+                      activePage = 'info';
+                    });
+                  },
+                ),
+                const SizedBox(height: 20),
+                _buildDrawerIcon(
+                  context: context,
+                  page: 'settings',
+                  icon: Icons.settings,
+                  selectedIcon: Icons.settings_outlined,
+                  onPressed: () {
+                    setState(() {
+                      activePage = 'settings';
+                    });
+                  },
+                ),
+                const SizedBox(height: 20),
 
                 // Pièces d'or en bas du Drawer
                 const Padding(
@@ -163,15 +229,59 @@ class _HeroDetailsPageState extends State<HeroDetailsPage> {
   Widget _buildPageContent() {
     switch (activePage) {
       case 'home':
-        return heroDetailsHome(widget: widget);
+        return HeroDetailsHome(widget: widget);
       case 'emotions':
         return Center(child: Text("Emotions Page", key: ValueKey("emotions")));
       case 'shield':
         return Center(child: Text("Shield Page", key: ValueKey("shield")));
+      case 'info':
+        return _buildInfoPage();
+      case 'settings':
+        return _buildSettingsPage();
       default:
         return Center(child: Text("Unknown Page", key: ValueKey("unknown")));
     }
   }
+
+  Widget _buildInfoPage() {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Informations RPGChampion",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              " $heroCount",
+              style: TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              "Leaderboard du serveur :",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Text(
+                  leaderboard,
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsPage() {
+    return Center(
+      child: Text("Page des paramètres"),
+    );
+  }
 }
-
-
