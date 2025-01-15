@@ -46,3 +46,27 @@ jobs:
         run: mvn sonar:sonar -Dsonar.qualitygate.wait=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to VPS
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_IP }} << 'EOF'
+          cd /path/to/project
+          git pull origin main
+          docker build -t backend-app .
+          docker stop backend-container || true
+          docker rm backend-container || true
+          docker run -d -e APPLICATION_NAME=myapp --name backend-container -e TOKEN_DISC_BOT=${{ secrets.TOKEN_BOT }}  -e DB_URL=${{ secrets.DB_URL }}  -e DB_USER=${{ secrets.DB_USER }}  -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} -p 8080:8080  backend-app
+
+          EOF
