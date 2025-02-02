@@ -17,21 +17,8 @@ jobs:
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_IP }}
-          username: root
+          username: nathaniel
           password: ${{ secrets.SSH_PWD }}
           port: 22
           script: |
-            cd /root/projects/rpgchampion/RPGChampion
-            git pull --rebase
-            docker build -t backend-app ./backend
-            docker stop backend-container || true
-            docker rm backend-container || true
-            docker run -d \
-              -e APPLICATION_NAME=myapp \
-              --name backend-container \
-              -e TOKEN_DISC_BOT=${{ secrets.TOKEN_DISC_BOT }} \
-              -e DB_URL=${{ secrets.DB_URL }} \
-              -e DB_USER=${{ secrets.DB_USER }} \
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              -p 8080:8080 \
-              backend-app
+            echo "${{ secrets.SSH_PWD }}" | sudo -S su -c "cd /root/projects/rpgchampion/RPGChampion && git pull --rebase && docker build -t backend-app ./backend && docker stop backend-container || true && docker rm backend-container || true && docker run -d -e APPLICATION_NAME=myapp --name backend-container -e TOKEN_DISC_BOT=\${{ secrets.TOKEN_DISC_BOT }} -e DB_URL=\${{ secrets.DB_URL }} -e DB_USER=\${{ secrets.DB_USER }} -e DB_PASSWORD=\${{ secrets.DB_PASSWORD }} -p 8080:8080 backend-app"
