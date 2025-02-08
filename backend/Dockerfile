@@ -14,7 +14,7 @@ RUN mvn clean package -DskipTests
 # Étape 2 : Image de production minimale pour exécuter l'application
 FROM eclipse-temurin:17-jdk
 
-# Défini le répertoire de travail dans le conteneur
+# Défini le répertoire de travail   dans le conteneur
 WORKDIR /app
 
 # Copier le JAR généré depuis l'étape de build

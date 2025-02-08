@@ -54,10 +54,45 @@ public class HeroController extends ListenerAdapter implements CommandController
         this.prefixController = prefixController;
     }
 
+    private static void manageGetHeroesPagination(MessageReceivedEvent event, EmbedBuilder initialEmbed, String userId, AtomicInteger index, List<Hero> heroes, BiConsumer<Message, Integer> updateHeroDisplay) {
+        event.getChannel().sendMessageEmbeds(initialEmbed.build()).queue(message -> {
+            message.addReaction(Emoji.fromUnicode(LEFT_ARROW)).queue(); // Flèche gauche
+            message.addReaction(Emoji.fromUnicode(RIGHT_ARROW)).queue(); // Flèche droite
+
+            event.getJDA().addEventListener(new ListenerAdapter() {
+                @Override
+                public void onMessageReactionAdd(@NotNull MessageReactionAddEvent reactionEvent) {
+                    if (!reactionEvent.getUserId().equals(userId) || reactionEvent.getMessageIdLong() != message.getIdLong()) {
+                        return; // Ignore si ce n'est pas l'auteur original ou si ce n'est pas le bon message
+                    }
+
+                    String emoji = reactionEvent.getEmoji().getName();
+                    if (emoji.equals("➡️")) {
+                        if (index.incrementAndGet() >= heroes.size()) {
+                            index.set(0); // Boucle vers le premier héros
+                        }
+                    } else if (emoji.equals("⬅️")) {
+                        if (index.decrementAndGet() < 0) {
+                            index.set(heroes.size() - 1); // Boucle vers le dernier héros
+                        }
+                    }
+
+                    updateHeroDisplay.accept(message, index.get());
+
+                    // Retire la réaction de l'utilisateur pour éviter le spam
+                    reactionEvent.getReaction().removeReaction(reactionEvent.getUser()).queue();
+                }
+            });
+        });
+    }
+
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         String prefix = prefixController.getPrefix(event);
         String command = event.getMessage().getContentRaw();
+        if (!command.startsWith(prefix)) {
+            return;
+        }
 
         if (command.startsWith(prefix + "createHero")) {
             createHero(event);
@@ -79,7 +114,36 @@ public class HeroController extends ListenerAdapter implements CommandController
             afk(event);
         } else if (command.startsWith(prefix + "wakeUp")) {
             wakeUp(event);
+        } else if (command.startsWith(prefix + "setAvatar")) {
+            setAvatar(event, command, prefix);
         }
+    }
+
+    private void setAvatar(@NotNull MessageReceivedEvent event, String command, String prefix) {
+        String[] parts = command.split(" ", 2);
+        EmbedBuilder embed = new EmbedBuilder();
+        if (parts.length == 2) {
+            String newAvatar = parts[1];
+            String userId = event.getAuthor().getId();
+            String username = event.getAuthor().getName();
+            boolean wasSuccessful = heroService.setAvatar(newAvatar, userId, event.getGuild().getId());
+
+            if (wasSuccessful) {
+                embed.setTitle("Hero Avatar set ✏️");
+                embed.setColor(0x00FF00);
+                embed.setDescription(String.format("your hero has a new avatar !"));
+            } else {
+                embed.setTitle("Rename Failed ❌");
+                embed.setColor(0xFF0000); // Couleur rouge pour l'erreur
+                embed.setDescription(String.format("your hero avatar can not be set. Please try again."));
+            }
+        } else {
+            embed.setTitle("Incorrect Usage ⚠️");
+            embed.setColor(0xFF0000); // Couleur rouge pour l'erreur
+            embed.setDescription(String.format("Usage: **%srenameHero <HeroName>**", prefix));
+        }
+
+        event.getChannel().sendMessageEmbeds(embed.build()).queue();
     }
 
     private void wakeUp(MessageReceivedEvent event) {
@@ -102,7 +166,6 @@ public class HeroController extends ListenerAdapter implements CommandController
         event.getChannel().sendMessageEmbeds(embed.build()).queue();
     }
 
-
     private void afk(MessageReceivedEvent event) {
         String userId = event.getAuthor().getId();
         String username = event.getAuthor().getName();
@@ -123,7 +186,6 @@ public class HeroController extends ListenerAdapter implements CommandController
         event.getChannel().sendMessageEmbeds(embed.build()).queue();
     }
 
-
     private void showLeaderboard(MessageReceivedEvent event) {
         String leaderboard = heroService.getLeaderboard(event.getGuild().getId());
 
@@ -134,7 +196,6 @@ public class HeroController extends ListenerAdapter implements CommandController
 
         event.getChannel().sendMessageEmbeds(embed.build()).queue();
     }
-
 
     //TODO : fix error duplicated key ...
     private void renameHero(MessageReceivedEvent event, String command, String prefix) {
@@ -166,7 +227,6 @@ public class HeroController extends ListenerAdapter implements CommandController
         event.getChannel().sendMessageEmbeds(embed.build()).queue();
     }
 
-
     private void fightPVE(MessageReceivedEvent event) {
         String userId = event.getAuthor().getId();
         int heroId = userService.getSelectedHeroId(userId, event.getGuild().getId());
@@ -174,7 +234,7 @@ public class HeroController extends ListenerAdapter implements CommandController
         EmbedBuilder embed = new EmbedBuilder();
 
         if (heroId != -1) {
-            String combatOutput = combatService.startCombat(heroId,userId);
+            String combatOutput = combatService.startCombat(heroId, userId);
 
             if (combatOutput.length() <= 2000) {
                 embed.setTitle("Combat Result ⚔️");
@@ -193,7 +253,6 @@ public class HeroController extends ListenerAdapter implements CommandController
         event.getChannel().sendMessageEmbeds(embed.build()).queue();
     }
 
-
     private void sendLongMessage(MessageReceivedEvent event, String message) {
         int maxMessageLength = 2000;
         int start = 0;
@@ -203,7 +262,6 @@ public class HeroController extends ListenerAdapter implements CommandController
             start = end;
         }
     }
-
 
     private void selectHero(MessageReceivedEvent event, String command, String prefix) {
         String[] parts = command.split(" ", 2);
@@ -233,7 +291,6 @@ public class HeroController extends ListenerAdapter implements CommandController
 
         event.getChannel().sendMessageEmbeds(embed.build()).queue();
     }
-
 
     private void deleteHero(MessageReceivedEvent event, String command) {
         String[] parts = command.split(" ", 2);
@@ -267,7 +324,6 @@ public class HeroController extends ListenerAdapter implements CommandController
         // Envoi de l'embed
         event.getChannel().sendMessageEmbeds(embed.build()).queue();
     }
-
 
     private void getHeroes(MessageReceivedEvent event) {
         List<Hero> heroes = heroService.getHeroesOfUser(event.getAuthor().getId(), event.getGuild().getId());
@@ -307,12 +363,13 @@ public class HeroController extends ListenerAdapter implements CommandController
                     hero.getHp(),
                     hero.getLevel(),
                     hero.getExperience(),
-                    hero.getAfk()!=null ? "Exploring somewhere" : "Home"
+                    hero.getAfk() != null ? "Exploring somewhere" : "Home"
             );
 
             // Ajout des informations du héros dans l'embed
             embed.addBlankField(true);
-            embed.setDescription("\n\n" +"🪙 **Global Tresory**: "+userDAO.getGold() +"\n\n"+heroStats);
+            embed.setDescription("\n\n" + "🪙 **Global Tresory**: " + userDAO.getGold() + "\n\n" + heroStats);
+            embed.setImage(hero.getAvatar());
             embed.addBlankField(true);
             embed.setFooter(String.format("%d/%d  \t\t\tcurrent hero being displayed : %s", heroIndex + 1, heroes.size(), hero.getName()));
 
@@ -334,47 +391,15 @@ public class HeroController extends ListenerAdapter implements CommandController
                 heroes.get(0).getHp(),
                 heroes.get(0).getLevel(),
                 heroes.get(0).getExperience(),
-                heroes.get(0).getAfk()!=null ? "Exploring somewhere" : "Home"
+                heroes.get(0).getAfk() != null ? "Exploring somewhere" : "Home"
 
         );
         initialEmbed.addBlankField(true);
-        initialEmbed.setDescription("\n\n" +"🪙 **Global Tresory**: "+userDAO.getGold() +"\n\n"+initialHeroStats);
+        initialEmbed.setDescription("\n\n" + "🪙 **Global Tresory**: " + userDAO.getGold() + "\n\n" + initialHeroStats);
+        initialEmbed.setImage(heroes.get(0).getAvatar());
         initialEmbed.addBlankField(true);
         manageGetHeroesPagination(event, initialEmbed, userId, index, heroes, updateHeroDisplay);
     }
-
-    private static void manageGetHeroesPagination(MessageReceivedEvent event, EmbedBuilder initialEmbed, String userId, AtomicInteger index, List<Hero> heroes, BiConsumer<Message, Integer> updateHeroDisplay) {
-        event.getChannel().sendMessageEmbeds(initialEmbed.build()).queue(message -> {
-            message.addReaction(Emoji.fromUnicode(LEFT_ARROW)).queue(); // Flèche gauche
-            message.addReaction(Emoji.fromUnicode(RIGHT_ARROW)).queue(); // Flèche droite
-
-            event.getJDA().addEventListener(new ListenerAdapter() {
-                @Override
-                public void onMessageReactionAdd(@NotNull MessageReactionAddEvent reactionEvent) {
-                    if (!reactionEvent.getUserId().equals(userId) || reactionEvent.getMessageIdLong() != message.getIdLong()) {
-                        return; // Ignore si ce n'est pas l'auteur original ou si ce n'est pas le bon message
-                    }
-
-                    String emoji = reactionEvent.getEmoji().getName();
-                    if (emoji.equals("➡️")) {
-                        if (index.incrementAndGet() >= heroes.size()) {
-                            index.set(0); // Boucle vers le premier héros
-                        }
-                    } else if (emoji.equals("⬅️")) {
-                        if (index.decrementAndGet() < 0) {
-                            index.set(heroes.size() - 1); // Boucle vers le dernier héros
-                        }
-                    }
-
-                    updateHeroDisplay.accept(message, index.get());
-
-                    // Retire la réaction de l'utilisateur pour éviter le spam
-                    reactionEvent.getReaction().removeReaction(reactionEvent.getUser()).queue();
-                }
-            });
-        });
-    }
-
 
     private void createHero(MessageReceivedEvent event) {
         String[] parts = event.getMessage().getContentRaw().split(" ", 2);

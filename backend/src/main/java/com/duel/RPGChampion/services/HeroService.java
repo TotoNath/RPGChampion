@@ -193,21 +193,20 @@ public class HeroService {
      */
     @Transactional
     public boolean renameHero(String newHeroName, String userId, String guildId) {
-        boolean ret = false;
         UserDAO userDAO = userRepository.findByUserId(userId).orElseThrow();
-        HeroDAO selectedHero = userDAO.getSelectedHero().stream().filter(heroDAO -> heroDAO.getGuildId().equals(guildId)).findFirst().orElse(null);
+        HeroDAO selectedHero = userDAO.getSelectedHero()
+                .stream()
+                .filter(heroDAO -> heroDAO.getGuildId().equals(guildId))
+                .findFirst()
+                .orElse(null);
 
         if (selectedHero != null) {
-            Set<HeroDAO> currentSelectedHeroes = userDAO.getSelectedHero();
-            currentSelectedHeroes.remove(selectedHero);
             selectedHero.setName(newHeroName);
-            currentSelectedHeroes.add(selectedHero);
-            userDAO.setSelectedHero(currentSelectedHeroes);
-            userRepository.save(userDAO);
-            ret = true;
+            heroRepository.save(selectedHero);
+            return true;
         }
 
-        return ret;
+        return false;
     }
 
     /**
@@ -279,5 +278,30 @@ public class HeroService {
             ret = userDAO.getSelectedHero().stream().filter(heroDAO -> heroDAO.getGuildId().equals(guildId)).findFirst().orElse(null);
         }
         return ret;
+    }
+
+    /**
+     * Sets the hero avatar
+     *
+     * @param newAvatar the new avatar
+     * @param userId    the current user by whom the command is being executed
+     * @param guildId   the current guild where the command is executed
+     * @return true if was set correctly, false otherwise
+     */
+    public boolean setAvatar(String newAvatar, String userId, String guildId) {
+        UserDAO userDAO = userRepository.findByUserId(userId).orElseThrow();
+        HeroDAO selectedHero = userDAO.getSelectedHero()
+                .stream()
+                .filter(heroDAO -> heroDAO.getGuildId().equals(guildId))
+                .findFirst()
+                .orElse(null);
+
+        if (selectedHero != null) {
+            selectedHero.setAvatar(newAvatar);
+            heroRepository.save(selectedHero);
+            return true;
+        }
+
+        return false;
     }
 }

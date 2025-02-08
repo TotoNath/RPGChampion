@@ -35,6 +35,8 @@ public class HeroDAO {
 
     private Timestamp afk;
 
+    private String Avatar;
+
     public HeroDAO() {
         Random random = new Random();
         age = random.nextInt(100);
@@ -154,17 +156,25 @@ public class HeroDAO {
         this.afk = afk;
     }
 
+    public String getAvatar() {
+        return Avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        Avatar = avatar;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HeroDAO heroDAO = (HeroDAO) o;
-        return id == heroDAO.id && age == heroDAO.age && hp == heroDAO.hp && strength == heroDAO.strength && agility == heroDAO.agility && level == heroDAO.level && experience == heroDAO.experience && Objects.equals(name, heroDAO.name) && gender == heroDAO.gender && Objects.equals(guildId, heroDAO.guildId) && Objects.equals(afk, heroDAO.afk);
+        return id == heroDAO.id && age == heroDAO.age && hp == heroDAO.hp && strength == heroDAO.strength && agility == heroDAO.agility && level == heroDAO.level && experience == heroDAO.experience && Objects.equals(name, heroDAO.name) && gender == heroDAO.gender && Objects.equals(guildId, heroDAO.guildId) && Objects.equals(afk, heroDAO.afk) && Objects.equals(Avatar, heroDAO.Avatar);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, age, gender, hp, strength, agility, level, experience, guildId, afk);
+        return Objects.hash(id, name, age, gender, hp, strength, agility, level, experience, guildId, afk, Avatar);
     }
 
     @Override
@@ -181,6 +191,7 @@ public class HeroDAO {
                 ", experience=" + experience +
                 ", guildId='" + guildId + '\'' +
                 ", afk=" + afk +
+                ", Avatar='" + Avatar + '\'' +
                 '}';
     }
 }

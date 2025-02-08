@@ -71,8 +71,8 @@ public class HeroRoute {
 
     @GetMapping("/select")
     public ResponseEntity<String> selectedHero(@RequestParam String heroName,
-                                             @RequestParam String userId,
-                                             @RequestParam String guildId) {
+                                               @RequestParam String userId,
+                                               @RequestParam String guildId) {
         HeroDAO selectedHero = heroService.getSelectedHero(userId, guildId);
         if (selectedHero != null) {
             return ResponseEntity.ok(selectedHero.getName());
@@ -100,6 +100,18 @@ public class HeroRoute {
             return ResponseEntity.ok("Hero renamed to " + newHeroName);
         } else {
             return ResponseEntity.badRequest().body("Failed to rename hero.");
+        }
+    }
+
+    @PostMapping("/setAvatar")
+    public ResponseEntity<String> setAvatar(@RequestParam String newAvatar,
+                                            @RequestParam String userId,
+                                            @RequestParam String guildId) {
+        boolean wasRenamed = heroService.setAvatar(newAvatar, userId, guildId);
+        if (wasRenamed) {
+            return ResponseEntity.ok("Hero url set to " + newAvatar);
+        } else {
+            return ResponseEntity.badRequest().body("Failed to set hero avatar.");
         }
     }
 

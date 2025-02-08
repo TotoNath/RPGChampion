@@ -15,6 +15,8 @@ public abstract class Entity {
 
     private int experience;
 
+    private String Avatar;
+
     public int getHp() {
         return hp;
     }
@@ -55,6 +57,14 @@ public abstract class Entity {
         this.experience = experience;
     }
 
+    public String getAvatar() {
+        return Avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        Avatar = avatar;
+    }
+
     public boolean attack(Entity target) {
         Random rand = new Random();
         int attackChance = rand.nextInt(100);
@@ -76,12 +86,12 @@ public abstract class Entity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Entity entity = (Entity) o;
-        return getHp() == entity.getHp() && getStrength() == entity.getStrength() && getAgility() == entity.getAgility() && getLevel() == entity.getLevel() && getExperience() == entity.getExperience();
+        return hp == entity.hp && strength == entity.strength && agility == entity.agility && level == entity.level && experience == entity.experience && Avatar == entity.Avatar;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getHp(), getStrength(), getAgility(), getLevel(), getExperience());
+        return Objects.hash(hp, strength, agility, level, experience, Avatar);
     }
 
     @Override
@@ -92,6 +102,7 @@ public abstract class Entity {
                 ", agility=" + agility +
                 ", level=" + level +
                 ", experience=" + experience +
+                ", Avatar=" + Avatar +
                 '}';
     }
 }
