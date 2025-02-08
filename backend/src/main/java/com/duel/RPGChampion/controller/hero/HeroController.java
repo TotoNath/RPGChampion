@@ -452,6 +452,7 @@ public class HeroController extends ListenerAdapter implements CommandController
                 prefix + "renameHero <heroName> : Renames your selected hero",
                 prefix + "afk : Your selected hero gains xp each 1/4 hour but he can't fight pve neither pvp until wakeUp then he gains the xp",
                 prefix + "wakeUp : Your selected hero gains xp for each 1/4 hour and can now fight pve and pvp",
+                prefix + "setAvatar <url>: Set your selected hero avatar. The urls needs to be a valid URL otherwise it will not appear",
                 prefix + "pve : Your hero goes for a walk ... who knows what will happen ?");
     }
 }
