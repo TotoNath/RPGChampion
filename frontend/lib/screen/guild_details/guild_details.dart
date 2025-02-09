@@ -19,6 +19,7 @@ class GuildDetailsPage extends StatefulWidget {
 class _GuildDetailsPageState extends State<GuildDetailsPage> {
   late Future<List<HeroModel>> _heroesFuture = Future.value([]);
   String? selectedHeroName;
+  late String curUserId;
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ class _GuildDetailsPageState extends State<GuildDetailsPage> {
     final isar = db.isar;
 
     final user = await isar.users.get(1);
+    curUserId = user!.discordId;
 
     if (user != null) {
       setState(() {
@@ -142,6 +144,47 @@ class _GuildDetailsPageState extends State<GuildDetailsPage> {
     }
   }
 
+  Future<void> deleteHero(HeroModel hero) async {
+    try {
+      // Récupération des données utilisateur nécessaires
+      final db = Database();
+      await db.init();
+      final isar = db.isar;
+      final user = await isar.users.get(1);
+
+      if (user == null) {
+        Fluttertoast.showToast(
+          msg: "Utilisateur introuvable.",
+          gravity: ToastGravity.BOTTOM,
+        );
+        return;
+      }
+
+      final response =
+      await deleteHeroes(user.discordId, widget.guild.guildId, hero.name);
+
+      if (response.statusCode == 200) {
+        Fluttertoast.showToast(
+          msg: "Héros \"${hero.name}\" supprimé avec succès!",
+          gravity: ToastGravity.BOTTOM,
+        );
+
+        // Rafraîchir la liste des héros
+        _loadUserData();
+      } else {
+        Fluttertoast.showToast(
+          msg: "Erreur lors de la suppression du héros.",
+          gravity: ToastGravity.BOTTOM,
+        );
+      }
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Erreur réseau : $e",
+        gravity: ToastGravity.BOTTOM,
+      );
+    }
+  }
+
   void _showRenameHeroDialog(HeroModel hero) {
     final TextEditingController _renameController = TextEditingController();
 
@@ -181,47 +224,6 @@ class _GuildDetailsPageState extends State<GuildDetailsPage> {
         );
       },
     );
-  }
-
-  Future<void> deleteHero(HeroModel hero) async {
-    try {
-      // Récupération des données utilisateur nécessaires
-      final db = Database();
-      await db.init();
-      final isar = db.isar;
-      final user = await isar.users.get(1);
-
-      if (user == null) {
-        Fluttertoast.showToast(
-          msg: "Utilisateur introuvable.",
-          gravity: ToastGravity.BOTTOM,
-        );
-        return;
-      }
-
-      final response =
-          await deleteHeroes(user.discordId, widget.guild.guildId, hero.name);
-
-      if (response.statusCode == 200) {
-        Fluttertoast.showToast(
-          msg: "Héros \"${hero.name}\" supprimé avec succès!",
-          gravity: ToastGravity.BOTTOM,
-        );
-
-        // Rafraîchir la liste des héros
-        _loadUserData();
-      } else {
-        Fluttertoast.showToast(
-          msg: "Erreur lors de la suppression du héros.",
-          gravity: ToastGravity.BOTTOM,
-        );
-      }
-    } catch (e) {
-      Fluttertoast.showToast(
-        msg: "Erreur réseau : $e",
-        gravity: ToastGravity.BOTTOM,
-      );
-    }
   }
 
   void _showCreateHeroDialog() {
@@ -312,7 +314,8 @@ class _GuildDetailsPageState extends State<GuildDetailsPage> {
                             () => HeroDetailsPage(
                                 hero: hero,
                                 guild: widget.guild,
-                                isSelected: selectedHeroName),
+                                isSelected: selectedHeroName,
+                            userId: curUserId),
                             transition: Transition.rightToLeftWithFade,
                             duration: const Duration(milliseconds: 500),
                           );
@@ -412,9 +415,12 @@ class HeroCard extends StatelessWidget {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade400,
+                  color: hero.Avatar.isEmpty ? Colors.grey.shade400 : null,
                   borderRadius: BorderRadius.circular(10),
                 ),
+                child: hero.Avatar.isEmpty
+                    ? null
+                    : Image.network(hero.Avatar),
               ),
               const SizedBox(height: 10),
               // Nom du héros
@@ -435,7 +441,6 @@ class HeroCard extends StatelessWidget {
             ],
           ),
         ),
-        // Icône de suppression
         Positioned(
           bottom: 30,
           right: 20,
@@ -444,7 +449,6 @@ class HeroCard extends StatelessWidget {
             child: const Icon(Icons.delete, color: Colors.red),
           ),
         ),
-        // Icône de modification
         Positioned(
           bottom: 30,
           left: 20,

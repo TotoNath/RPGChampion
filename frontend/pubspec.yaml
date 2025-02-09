@@ -57,6 +57,10 @@ dependencies:
   http: ^1.2.2
   fluttertoast: ^8.2.10
   flutter_dotenv: ^5.2.1
+  skeletonizer: ^1.4.3
+  confetti: ^0.8.0
+  flutter_shake_animated: ^0.0.5
+  mockito: ^5.4.4
 
 dev_dependencies:
   flutter_test:

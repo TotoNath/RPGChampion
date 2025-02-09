@@ -53,6 +53,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ))),
         Spacer(flex: 2),
         ElevatedButton(
+          key:  Key('onboarding_continue_button'),
           onPressed: () {
             setHasSeenOnboarding();
             Get.off(() => LoginPage(title: "LoginPage",));

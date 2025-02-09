@@ -5,6 +5,13 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+def envFile = rootProject.file("../.env")
+def envProperties = new Properties()
+
+if (envFile.exists()) {
+    envProperties.load(new FileInputStream(envFile))
+}
+
 android {
     namespace = "com.rpgchampion.frontend"
     compileSdk = flutter.compileSdkVersion
@@ -30,15 +37,22 @@ android {
         versionName = 1.0
         manifestPlaceholders = [
                 appAuthRedirectScheme: "rpgchampion",
-                applicationName: "io.flutter.app.FlutterApplication"
+                applicationName      : "io.flutter.app.FlutterApplication"
         ]
+    }
+
+    signingConfigs {
+        release {
+            storeFile file(envProperties['STORE_FILE'])
+            storePassword envProperties['STORE_PASSWORD']
+            keyAlias envProperties['KEY_ALIAS']
+            keyPassword envProperties['KEY_PASSWORD']
+        }
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 }

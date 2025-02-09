@@ -5,6 +5,7 @@ class HeroModel {
   final int ability; // Correspond à agility
   final int level;
   final int experience;
+  final String Avatar;
   final String gender;
 
   HeroModel({
@@ -14,6 +15,7 @@ class HeroModel {
     required this.ability,
     required this.level,
     required this.experience,
+    required this.Avatar,
     required this.gender,
   });
 
@@ -22,9 +24,10 @@ class HeroModel {
       name: json['name'],
       hp: json['hp'],
       strength: json['strength'],
-      ability: json['agility'], // Notez que backend appelle ça "agility"
+      ability: json['agility'],
       level: json['level'],
       experience: json['experience'],
+      Avatar: json['avatar']?? '',
       gender: json['gender'],
     );
   }

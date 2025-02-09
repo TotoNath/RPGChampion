@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:frontend/database/database.dart';
 import 'package:frontend/database/model/user_model.dart';
 import 'package:isar/isar.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -38,7 +39,36 @@ class _HomePageState extends State<HomePage> {
           future: fetchData(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              return Skeletonizer(
+                enabled: true,
+                child: Column(
+                  children: [
+                    // Avatar et nom (faux utilisateur)
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          const CircleAvatar(radius: 50),
+                          const SizedBox(height: 10),
+                          Container(height: 20, width: 150),
+                        ],
+                      ),
+                    ),
+                    const Divider(thickness: 1, color: Colors.grey),
+
+                    // Faux liste des serveurs
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: 5,
+                        itemBuilder: (context, index) => const ListTile(
+                          leading: CircleAvatar(),
+                          title: SizedBox(height: 20, width: 100, child: DecoratedBox(decoration: BoxDecoration())),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
             }
 
             if (snapshot.hasError) {

@@ -13,11 +13,21 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  int _counter = 0;
+  bool _isLoading = false; // État de chargement
 
-  void _incrementCounter() {
+  Future<void> _handleLogin() async {
     setState(() {
-      _counter++;
+      _isLoading = true;
+    });
+
+    try {
+      await loginWithDiscord(); // Fonction asynchrone de connexion
+    } catch (e) {
+      print("Erreur de connexion: $e");
+    }
+
+    setState(() {
+      _isLoading = false;
     });
   }
 
@@ -29,31 +39,32 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ElevatedButton(
-              onPressed: () {loginWithDiscord();
-              },
+              onPressed: _isLoading ? null : _handleLogin,
               style: ElevatedButton.styleFrom(
                 foregroundColor: AppColors.primaryText,
                 backgroundColor: AppColors.discordButton,
-                fixedSize: Size(182, 45), // Largeur de 50 px et hauteur de 45 px
+                fixedSize: const Size(182, 45),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min, // Le Row prend juste la place nécessaire
-                mainAxisAlignment: MainAxisAlignment.center, // Centre le contenu
+              child: _isLoading
+                  ? const CircularProgressIndicator(
+                color: Colors.white,
+              )
+                  : Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/logo/logo_discord.png', // Chemin de votre asset
-                    height: 24, // Taille de l'icône
+                    'assets/logo/logo_discord.png',
+                    height: 24,
                   ),
-                  SizedBox(width: 8), // Espacement entre l'icône et le texte
+                  const SizedBox(width: 8),
                   Text(
                     "Se Connecter".toUpperCase(),
-                    style: TextStyle(
-                      color: AppColors.primaryText, // Assurez-vous que le texte est visible
-                    ),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

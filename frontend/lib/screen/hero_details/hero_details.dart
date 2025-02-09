@@ -2,19 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:frontend/constant/color.dart';
 import 'package:frontend/database/model/hero_model.dart';
 import 'package:frontend/database/model/user_model.dart';
+import 'package:frontend/screen/hero_details/hero_details_afk.dart';
+import 'package:frontend/screen/hero_details/hero_details_fightpve.dart';
 import 'package:frontend/screen/hero_details/hero_details_home.dart';
+import 'package:frontend/screen/hero_details/hero_details_wake.dart';
 import 'package:frontend/service/hero_service.dart';
+
+import '../../database/database.dart';
 
 class HeroDetailsPage extends StatefulWidget {
   final HeroModel hero;
   final Guild guild;
   final String? isSelected;
+  final String userId;
 
   const HeroDetailsPage(
       {super.key,
       required this.hero,
       required this.guild,
-      required this.isSelected});
+      required this.isSelected, required this.userId});
 
   @override
   State<HeroDetailsPage> createState() => _HeroDetailsPageState();
@@ -32,6 +38,7 @@ class _HeroDetailsPageState extends State<HeroDetailsPage> {
     super.initState();
     _fetchHeroCount();
     _fetchLeaderboard();
+
   }
 
   Future<void> _fetchHeroCount() async {
@@ -90,24 +97,36 @@ class _HeroDetailsPageState extends State<HeroDetailsPage> {
                       const SizedBox(height: 20),
                       _buildDrawerIcon(
                         context: context,
-                        page: 'emotions',
-                        icon: Icons.emoji_emotions,
-                        selectedIcon: Icons.emoji_emotions_outlined,
+                        page: 'sword',
+                        icon: Icons.sports_kabaddi,
+                        selectedIcon: Icons.sports_kabaddi_outlined,
                         onPressed: () {
                           setState(() {
-                            activePage = 'emotions';
+                            activePage = 'sword';
                           });
                         },
                       ),
                       const SizedBox(height: 20),
                       _buildDrawerIcon(
                         context: context,
-                        page: 'shield',
-                        icon: Icons.shield,
-                        selectedIcon: Icons.shield_outlined,
+                        page: 'afk',
+                        icon: Icons.local_hotel,
+                        selectedIcon: Icons.local_hotel_outlined,
                         onPressed: () {
                           setState(() {
-                            activePage = 'shield';
+                            activePage = 'afk';
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      _buildDrawerIcon(
+                        context: context,
+                        page: 'coffee',
+                        icon: Icons.coffee,
+                        selectedIcon: Icons.coffee_outlined,
+                        onPressed: () {
+                          setState(() {
+                            activePage = 'coffee';
                           });
                         },
                       ),
@@ -230,10 +249,12 @@ class _HeroDetailsPageState extends State<HeroDetailsPage> {
     switch (activePage) {
       case 'home':
         return HeroDetailsHome(widget: widget);
-      case 'emotions':
-        return Center(child: Text("Emotions Page", key: ValueKey("emotions")));
-      case 'shield':
-        return Center(child: Text("Shield Page", key: ValueKey("shield")));
+      case 'afk':
+        return AfkPage(userId: widget.userId, guildId: widget.guild.guildId);
+      case 'coffee':
+        return WakeUpPage(userId: widget.userId, guildId: widget.guild.guildId);
+      case 'sword':
+        return FightPVEPage(userId: widget.userId, guildId: widget.guild.guildId);
       case 'info':
         return _buildInfoPage();
       case 'settings':

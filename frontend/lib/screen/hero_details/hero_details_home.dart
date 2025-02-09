@@ -119,18 +119,21 @@ class _HeroDetailsHomeState extends State<HeroDetailsHome> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         // Image du héros
+
                         Container(
-                          width: 200,
-                          height: 200,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Icon(
-                            Icons.person,
-                            size: 100,
-                            color: Colors.white,
-                          ),
+                            width: 200,
+                            height: 200,
+                            decoration: BoxDecoration(
+                              color: widget.widget.hero.Avatar.isEmpty ? Colors.grey.shade400 : null,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: widget.widget.hero.Avatar.isEmpty
+                                ? const Icon(
+                              Icons.person,
+                              size: 100,
+                              color: Colors.white,
+                            )
+                                : Image.network(widget.widget.hero.Avatar)
                         ),
                         const SizedBox(height: 20),
 
