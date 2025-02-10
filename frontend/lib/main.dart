@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
         colorScheme: const ColorScheme.dark(
           error: AppColors.error,
           secondary: AppColors.success,
-          surface: AppColors.warning,
+          surface: AppColors.background,
           primary: AppColors.info,
         ).copyWith(background: AppColors.background),
       ),
