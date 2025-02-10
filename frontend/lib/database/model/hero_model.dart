@@ -1,8 +1,13 @@
+/// ## HeroModel
+///
+/// Représente un héro constitué d'un nom , hp , strenght ...
+///
+/// ### Auteur : Nguiquerro
 class HeroModel {
   final String name;
   final int hp;
   final int strength;
-  final int ability; // Correspond à agility
+  final int ability;
   final int level;
   final int experience;
   final String Avatar;

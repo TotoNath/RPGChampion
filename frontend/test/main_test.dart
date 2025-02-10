@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/database/database.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/screen/splashscreen/splashscreen.dart';
 import 'package:mockito/mockito.dart';
 
 class MockDatabase extends Mock implements Database {}

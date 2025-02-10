@@ -113,6 +113,8 @@ flutter:
   assets:
     - .env
     - assets/logo.png
+    - assets/bg.jpg
+    - assets/bandit.jpg
     - assets/icon_logo.png
     - assets/onBoarding/
     - assets/logo/

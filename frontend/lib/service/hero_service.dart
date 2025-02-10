@@ -131,3 +131,14 @@ Future<String> getLeaderboard(String guildId) async {
     throw Exception("Failed to get leaderboard");
   }
 }
+
+Future<http.Response> setAvatar(String newAvatar, String userId, String guildId) async {
+  return await http.post(
+    Uri.parse('$ip/api/heroes/setAvatar'),
+    body: {
+      'newAvatar': newAvatar,
+      'userId': userId,
+      'guildId': guildId,
+    },
+  );
+}

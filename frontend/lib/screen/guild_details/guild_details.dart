@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:frontend/constant/color.dart';
+import 'package:frontend/constant/values.dart';
 import 'package:frontend/database/database.dart';
 import 'package:frontend/database/model/hero_model.dart';
 import 'package:frontend/database/model/user_model.dart';
 import 'package:frontend/screen/hero_details/hero_details.dart';
 import 'package:frontend/service/hero_service.dart';
+import 'package:frontend/widgets/card/hero_card.dart';
 import 'package:get/get.dart';
 
+import '../home/home.dart';
+
+/// ## GuildDetailsPage
+///
+/// Répresente les détails d'une page des guildes discord.
+///
+///
+/// ### Auteur : Nguiquerro
 class GuildDetailsPage extends StatefulWidget {
   final Guild guild;
 
@@ -88,7 +99,8 @@ class _GuildDetailsPageState extends State<GuildDetailsPage> {
         );
 
         // Rafraîchir la liste des héros après 100 ms
-        Future.delayed(const Duration(milliseconds: 100), _loadUserData);
+        Future.delayed(
+            const Duration(milliseconds: AppValues.DurationTO), _loadUserData);
       } else {
         Fluttertoast.showToast(
           msg: "Erreur lors de la création du héros.",
@@ -161,7 +173,7 @@ class _GuildDetailsPageState extends State<GuildDetailsPage> {
       }
 
       final response =
-      await deleteHeroes(user.discordId, widget.guild.guildId, hero.name);
+          await deleteHeroes(user.discordId, widget.guild.guildId, hero.name);
 
       if (response.statusCode == 200) {
         Fluttertoast.showToast(
@@ -206,6 +218,9 @@ class _GuildDetailsPageState extends State<GuildDetailsPage> {
               child: const Text("Annuler"),
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.success,
+              ),
               onPressed: () {
                 final newHeroName = _renameController.text.trim();
                 if (newHeroName.isNotEmpty) {
@@ -218,7 +233,12 @@ class _GuildDetailsPageState extends State<GuildDetailsPage> {
                   );
                 }
               },
-              child: const Text("Renommer"),
+              child: const Text(
+                "Renommer",
+                style: TextStyle(
+                  color: AppColors.buttonText,
+                ),
+              ),
             ),
           ],
         );
@@ -247,6 +267,9 @@ class _GuildDetailsPageState extends State<GuildDetailsPage> {
               child: const Text("Annuler"),
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.success,
+              ),
               onPressed: () {
                 final heroName = _heroNameController.text.trim();
                 if (heroName.isNotEmpty) {
@@ -259,7 +282,12 @@ class _GuildDetailsPageState extends State<GuildDetailsPage> {
                   );
                 }
               },
-              child: const Text("Créer"),
+              child: const Text(
+                "Créer",
+                style: TextStyle(
+                  color: AppColors.buttonText,
+                ),
+              ),
             ),
           ],
         );
@@ -273,21 +301,37 @@ class _GuildDetailsPageState extends State<GuildDetailsPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // En-tête du serveur
-            CircleAvatar(
-              backgroundImage: NetworkImage(widget.guild.iconUrl),
-              backgroundColor: Colors.grey.shade200,
-            ),
-            Text(
-              widget.guild.name,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+            GestureDetector(
+              onTap: () {
+                Get.to(
+                  () => const HomePage(),
+                  transition: Transition.rightToLeftWithFade,
+                  duration: const Duration(
+                      milliseconds: AppValues.TransitionDurationTO),
+                );
+              },
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    backgroundImage: NetworkImage(widget.guild.iconUrl),
+                    backgroundColor: Colors.grey.shade200,
+                  ),
+                  Text(
+                    widget.guild.name,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
             const Divider(
-                thickness: 1, color: Colors.grey, indent: 20, endIndent: 20),
-            const SizedBox(height: 20),
+                thickness: AppValues.DeviderThicknes,
+                color: Colors.grey,
+                indent: AppValues.DeviderIndent,
+                endIndent: AppValues.DeviderEndindent),
+            const SizedBox(height: AppValues.SizedBoxHeight),
 
             // Liste des héros
             Expanded(
@@ -315,9 +359,10 @@ class _GuildDetailsPageState extends State<GuildDetailsPage> {
                                 hero: hero,
                                 guild: widget.guild,
                                 isSelected: selectedHeroName,
-                            userId: curUserId),
+                                userId: curUserId),
                             transition: Transition.rightToLeftWithFade,
-                            duration: const Duration(milliseconds: 500),
+                            duration: const Duration(
+                                milliseconds: AppValues.TransitionDurationTO),
                           );
                         },
                         child: Center(
@@ -340,11 +385,19 @@ class _GuildDetailsPageState extends State<GuildDetailsPage> {
                                         child: const Text("Annuler"),
                                       ),
                                       ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.error,
+                                        ),
                                         onPressed: () {
                                           Navigator.of(context).pop();
                                           deleteHero(heroToDelete);
                                         },
-                                        child: const Text("Supprimer"),
+                                        child: const Text(
+                                          "Supprimer",
+                                          style: TextStyle(
+                                            color: AppColors.buttonText,
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   );
@@ -367,97 +420,8 @@ class _GuildDetailsPageState extends State<GuildDetailsPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showCreateHeroDialog,
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
-    );
-  }
-}
-
-class HeroCard extends StatelessWidget {
-  final HeroModel hero;
-  final Function onDelete;
-  final Function onRename;
-  final bool isSelected;
-
-  const HeroCard(
-      {Key? key,
-      required this.hero,
-      required this.onDelete,
-      required this.isSelected,
-      required this.onRename})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Carte principale
-        Container(
-          width: 250,
-          height: 250,
-          margin: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                blurRadius: 8,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Image de héros
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: hero.Avatar.isEmpty ? Colors.grey.shade400 : null,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: hero.Avatar.isEmpty
-                    ? null
-                    : Image.network(hero.Avatar),
-              ),
-              const SizedBox(height: 10),
-              // Nom du héros
-              Text(hero.name,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
-              // Stats
-              Text("${hero.hp}\t\t❤️"),
-              Text("${hero.experience}\t\t ⭐ XP"),
-              Text("${hero.level}\t\t 🎯 Level"),
-              const SizedBox(height: 10),
-              if (isSelected)
-                const Text(
-                  "Ce héros est sélectionné",
-                  style: TextStyle(color: Colors.green, fontSize: 14),
-                ),
-            ],
-          ),
-        ),
-        Positioned(
-          bottom: 30,
-          right: 20,
-          child: GestureDetector(
-            onTap: () => onDelete(hero),
-            child: const Icon(Icons.delete, color: Colors.red),
-          ),
-        ),
-        Positioned(
-          bottom: 30,
-          left: 20,
-          child: GestureDetector(
-            onTap: () => onRename(hero),
-            child: const Icon(Icons.edit, color: Colors.blue),
-          ),
-        ),
-      ],
     );
   }
 }

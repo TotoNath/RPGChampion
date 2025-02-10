@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 
+/// ## AppColors
+///
+/// Les constantes de couleurs
+///
+/// ### Auteur : Nguiquerro
 class AppColors {
   static const Color background = Color(0xff1e1e24);
+  static const Color backgroundgrad = Color(0xff2b2b2f);
   static const Color primaryText = Color(0xFFfffffc);
 
   static const Color button = Color(0xFFfffffc);

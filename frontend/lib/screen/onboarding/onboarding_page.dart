@@ -1,12 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constant/color.dart';
 import 'package:frontend/screen/login/login.dart';
-import 'package:frontend/widgets/staggeredview_widget.dart';
+import 'package:frontend/widgets/onBoarding/onboarding_content.dart';
 import 'package:get/get.dart';
 
 import '../../utils/onboarding_utils.dart';
-import 'animated_dots.dart';
+import '../../widgets/onBoarding/animated_dots.dart';
 
+/// `OnboardingPage` est un widget `StatefulWidget` qui gère la page d'introduction de l'application.
+/// Cette page sert à guider l'utilisateur à travers plusieurs écrans d'introduction avant de passer à la page de connexion.
+///
+/// ### Fonctionnalités :
+/// - Affichage d'une séquence de plusieurs pages d'introduction.
+/// - Permet de changer de page à l'aide du `PageView`.
+/// - Affiche un indicateur sous forme de points animés pour indiquer la page actuelle.
+/// - Bouton permettant de passer à la page de connexion après la fin de l'introduction.
+///
+/// ### Méthodes :
+/// - **build** : Construit la page d'onboarding avec les pages d'introduction et un bouton pour démarrer.
+///
+/// ### Composants :
+/// - **PageView.builder** : Crée et affiche les pages d'introduction.
+/// - **OnboardingContent** : Affiche le contenu de chaque page d'introduction.
+/// - **AnimatedDot** : Affiche un point animé pour représenter la page actuelle.
+/// - **ElevatedButton** : Permet de passer à la page de connexion une fois l'introduction terminée.
+///
+/// ### Liste `demoData` :
+/// Contient les données nécessaires pour l'affichage des pages d'introduction.
+/// Chaque élément de la liste contient une illustration, un titre et un texte descriptif.
+///
+/// ### Auteur : Nguiquerro
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
 
@@ -22,7 +45,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     return Scaffold(
         body: Column(
       children: [
-        Spacer(flex: 1),
+        const Spacer(flex: 1),
         SizedBox(
           height: 500,
           child: PageView.builder(
@@ -40,7 +63,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     index: index);
               }),
         ),
-        Spacer(),
+        const Spacer(),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
@@ -51,72 +74,24 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         isActive: _selectedIndex == index,
                       ),
                     ))),
-        Spacer(flex: 2),
+        const Spacer(flex: 2),
         ElevatedButton(
-          key:  Key('onboarding_continue_button'),
+          key: const Key('onboarding_continue_button'),
           onPressed: () {
             setHasSeenOnboarding();
-            Get.off(() => LoginPage(title: "LoginPage",));
-            },
+            Get.off(() => const LoginPage(
+                  title: "LoginPage",
+                ));
+          },
           child: Text("Commencer".toUpperCase()),
           style: ElevatedButton.styleFrom(
             foregroundColor: AppColors.buttonText,
-            backgroundColor: AppColors.button, // Couleur du texte
+            backgroundColor: AppColors.button,
           ),
         ),
-        Spacer()
+        const Spacer()
       ],
     ));
-  }
-}
-
-class OnboardingContent extends StatelessWidget {
-  const OnboardingContent({
-    super.key,
-    required this.illustration,
-    required this.text,
-    required this.title,
-    required this.index,
-  });
-
-  final String illustration, text, title;
-  final int index;
-
-  @override
-  Widget build(BuildContext context) {
-    if (index == 0) {
-      return StaggeredViewWidget(title: title, text: text);
-    } else {
-      return SafeArea(
-          child: Column(
-        children: [
-          Expanded(
-              child: AspectRatio(
-                  aspectRatio: 1, child: Image.asset(illustration))),
-          SizedBox(height: 16),
-          Text(
-            title,
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge!
-                .copyWith(fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25.0),
-            // Ajouter un padding à gauche et à droite
-            child: Align(
-              alignment: Alignment.center, // Centrer le texte
-              child: Text(
-                text,
-                style: Theme.of(context).textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ],
-      ));
-    }
   }
 }
 

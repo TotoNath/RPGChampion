@@ -2,6 +2,11 @@ import 'package:isar/isar.dart';
 
 part 'user_model.g.dart';
 
+/// ## User
+///
+/// Représente un utilisateur de l'application après l'authentification Discord
+///
+/// ### Auteur : Nguiquerro
 @Collection()
 class User {
   Id id = Isar.autoIncrement;

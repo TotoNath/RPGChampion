@@ -1,15 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constant/color.dart';
+import 'package:frontend/constant/values.dart';
 import 'package:frontend/database/model/hero_model.dart';
 import 'package:frontend/database/model/user_model.dart';
-import 'package:frontend/screen/hero_details/hero_details_afk.dart';
-import 'package:frontend/screen/hero_details/hero_details_fightpve.dart';
-import 'package:frontend/screen/hero_details/hero_details_home.dart';
-import 'package:frontend/screen/hero_details/hero_details_wake.dart';
 import 'package:frontend/service/hero_service.dart';
+import 'package:frontend/service/refresh_service.dart';
+import 'package:frontend/widgets/buttons/drawer_button.dart';
+import 'package:frontend/widgets/page_content.dart';
 
-import '../../database/database.dart';
-
+/// `HeroDetailsPage` est une page affichant les détails d'un héros dans un contexte de jeu.
+/// Elle permet à l'utilisateur de naviguer entre différentes sections via un menu latéral.
+///
+/// ### Fonctionnalités :
+/// - Affiche les informations du héros et du classement.
+/// - Permet de naviguer entre plusieurs sections via des icônes (home, combat, repos, réveil, etc.).
+/// - Charge dynamiquement le contenu en fonction de la page active.
+/// - Utilise des animations pour la transition entre les pages.
+///
+/// ### Paramètres :
+/// - `hero` : Le modèle de données représentant le héros.
+/// - `guild` : Informations sur la guilde à laquelle appartient le héros.
+/// - `isSelected` : Indique si le héros est sélectionné.
+/// - `userId` : Identifiant de l'utilisateur courant.
+///
+/// ### Auteur : Nguiquerro
 class HeroDetailsPage extends StatefulWidget {
   final HeroModel hero;
   final Guild guild;
@@ -20,25 +34,40 @@ class HeroDetailsPage extends StatefulWidget {
       {super.key,
       required this.hero,
       required this.guild,
-      required this.isSelected, required this.userId});
+      required this.isSelected,
+      required this.userId});
 
   @override
   State<HeroDetailsPage> createState() => _HeroDetailsPageState();
 }
 
 class _HeroDetailsPageState extends State<HeroDetailsPage> {
-  // Page active (par défaut sur 'home')
   String activePage = 'home';
   String heroCount = "0";
+  late HeroModel hero;
 
-  String leaderboard = "Loading ...";
+  String leaderboard = "En cours de chargement ...";
 
   @override
   void initState() {
     super.initState();
     _fetchHeroCount();
     _fetchLeaderboard();
+    hero = widget.hero;
+  }
 
+  Future<void> _refreshHeroData() async {
+    final updatedHero = await fetchHeroByName(
+      widget.userId,
+      widget.guild.guildId,
+      hero.name,
+    );
+
+    if (updatedHero != null) {
+      setState(() {
+        hero = updatedHero;
+      });
+    }
   }
 
   Future<void> _fetchHeroCount() async {
@@ -49,7 +78,7 @@ class _HeroDetailsPageState extends State<HeroDetailsPage> {
       });
     } catch (e) {
       setState(() {
-        heroCount = "Error";
+        heroCount = "Erreur";
       });
     }
   }
@@ -62,7 +91,7 @@ class _HeroDetailsPageState extends State<HeroDetailsPage> {
       });
     } catch (e) {
       setState(() {
-        leaderboard = "Error";
+        leaderboard = "Erreur";
       });
     }
   }
@@ -72,104 +101,98 @@ class _HeroDetailsPageState extends State<HeroDetailsPage> {
     return Scaffold(
       body: Row(
         children: [
-          // Drawer Toujours Ouvert
           Container(
             width: 100,
-            color: AppColors.background, // Couleur de fond du Drawer
+            color: AppColors.background,
             child: Column(
               children: [
-                // Icônes en haut du Drawer
                 Padding(
-                  padding: const EdgeInsets.only(top: 50.0),
+                  padding: const EdgeInsets.only(top: AppValues.PaddingTop),
                   child: Column(
                     children: [
-                      _buildDrawerIcon(
-                        context: context,
-                        page: 'home',
-                        icon: Icons.home,
-                        selectedIcon: Icons.home_outlined,
-                        onPressed: () {
-                          setState(() {
-                            activePage = 'home';
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      _buildDrawerIcon(
-                        context: context,
-                        page: 'sword',
-                        icon: Icons.sports_kabaddi,
-                        selectedIcon: Icons.sports_kabaddi_outlined,
-                        onPressed: () {
-                          setState(() {
-                            activePage = 'sword';
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      _buildDrawerIcon(
-                        context: context,
-                        page: 'afk',
-                        icon: Icons.local_hotel,
-                        selectedIcon: Icons.local_hotel_outlined,
-                        onPressed: () {
-                          setState(() {
-                            activePage = 'afk';
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      _buildDrawerIcon(
-                        context: context,
-                        page: 'coffee',
-                        icon: Icons.coffee,
-                        selectedIcon: Icons.coffee_outlined,
-                        onPressed: () {
-                          setState(() {
-                            activePage = 'coffee';
-                          });
-                        },
-                      ),
+                      CustomDrawerButton(
+                          activePage: activePage,
+                          context: context,
+                          page: 'home',
+                          icon: Icons.home,
+                          selectedIcon: Icons.home_outlined,
+                          onPressed: () {
+                            setState(() {
+                              activePage = 'home';
+                            });
+                          }),
+                      const SizedBox(height: AppValues.SizedBoxHeight),
+                      CustomDrawerButton(
+                          activePage: activePage,
+                          context: context,
+                          page: 'sword',
+                          icon: Icons.sports_kabaddi,
+                          selectedIcon: Icons.sports_kabaddi_outlined,
+                          onPressed: () {
+                            setState(() {
+                              activePage = 'sword';
+                            });
+                          }),
+                      const SizedBox(height: AppValues.SizedBoxHeight),
+                      CustomDrawerButton(
+                          activePage: activePage,
+                          context: context,
+                          page: 'afk',
+                          icon: Icons.local_hotel,
+                          selectedIcon: Icons.local_hotel_outlined,
+                          onPressed: () {
+                            setState(() {
+                              activePage = 'afk';
+                            });
+                          }),
+                      const SizedBox(height: AppValues.SizedBoxHeight),
+                      CustomDrawerButton(
+                          activePage: activePage,
+                          context: context,
+                          page: 'coffee',
+                          icon: Icons.coffee,
+                          selectedIcon: Icons.coffee_outlined,
+                          onPressed: () {
+                            setState(() {
+                              activePage = 'coffee';
+                            });
+                          }),
                     ],
                   ),
                 ),
-
                 const Spacer(),
-
-                const SizedBox(height: 20),
-                _buildDrawerIcon(
-                  context: context,
-                  page: 'info',
-                  icon: Icons.info,
-                  selectedIcon: Icons.info_outline,
-                  onPressed: () {
-                    setState(() {
-                      activePage = 'info';
-                    });
-                  },
-                ),
-                const SizedBox(height: 20),
-                _buildDrawerIcon(
-                  context: context,
-                  page: 'settings',
-                  icon: Icons.settings,
-                  selectedIcon: Icons.settings_outlined,
-                  onPressed: () {
-                    setState(() {
-                      activePage = 'settings';
-                    });
-                  },
-                ),
-                const SizedBox(height: 20),
-
-                // Pièces d'or en bas du Drawer
+                const SizedBox(height: AppValues.SizedBoxHeight),
+                CustomDrawerButton(
+                    activePage: activePage,
+                    context: context,
+                    page: 'info',
+                    icon: Icons.info,
+                    selectedIcon: Icons.info_outline,
+                    onPressed: () {
+                      setState(() {
+                        activePage = 'info';
+                      });
+                    }),
+                const SizedBox(height: AppValues.SizedBoxHeight),
+                CustomDrawerButton(
+                    activePage: activePage,
+                    context: context,
+                    page: 'settings',
+                    icon: Icons.settings,
+                    selectedIcon: Icons.settings_outlined,
+                    onPressed: () {
+                      setState(() {
+                        activePage = 'settings';
+                      });
+                    }),
+                const SizedBox(height: AppValues.SizedBoxHeight),
                 const Padding(
-                  padding: EdgeInsets.only(bottom: 20.0),
+                  padding: EdgeInsets.only(bottom: AppValues.PaddingBottom),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.monetization_on, color: Colors.amber),
-                      SizedBox(width: 5),
+                      SizedBox(width: AppValues.SizedBoxWidth),
                       Text(
                         "50",
                         style: TextStyle(
@@ -192,117 +215,30 @@ class _HeroDetailsPageState extends State<HeroDetailsPage> {
 
           Expanded(
             child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: AppValues.TransitionDurationTO),
               transitionBuilder: (child, animation) => FadeTransition(
                 opacity: animation,
                 child: SlideTransition(
                   position: Tween<Offset>(
                     begin: const Offset(0.1, 0),
-                    // Légère animation latérale
                     end: Offset.zero,
                   ).animate(animation),
                   child: child,
                 ),
               ),
-              child: _buildPageContent(),
+              child: PageContent(
+                  activePage: activePage,
+                  widget: widget,
+                  heroCount: heroCount,
+                  leaderboard: leaderboard,
+                heroModel: hero,
+                onUpdate: _refreshHeroData,
+
+              ),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildDrawerIcon({
-    required BuildContext context,
-    required String page,
-    required IconData icon,
-    required IconData selectedIcon,
-    required VoidCallback onPressed,
-  }) {
-    final bool isActive = (activePage == page);
-
-    return TweenAnimationBuilder<double>(
-      tween:
-          Tween<double>(begin: isActive ? 1.3 : 0.8, end: isActive ? 1.3 : 0.8),
-      duration: const Duration(milliseconds: 200),
-      builder: (context, scale, child) {
-        return Transform.scale(
-          scale: scale,
-          child: IconButton(
-            onPressed: onPressed,
-            icon: Icon(icon),
-            iconSize: 30,
-            color: Colors.white,
-            splashRadius: 30,
-            splashColor: Colors.white,
-            selectedIcon: Icon(selectedIcon),
-            isSelected: !isActive,
-            highlightColor: Colors.transparent,
-            tooltip: page,
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildPageContent() {
-    switch (activePage) {
-      case 'home':
-        return HeroDetailsHome(widget: widget);
-      case 'afk':
-        return AfkPage(userId: widget.userId, guildId: widget.guild.guildId);
-      case 'coffee':
-        return WakeUpPage(userId: widget.userId, guildId: widget.guild.guildId);
-      case 'sword':
-        return FightPVEPage(userId: widget.userId, guildId: widget.guild.guildId);
-      case 'info':
-        return _buildInfoPage();
-      case 'settings':
-        return _buildSettingsPage();
-      default:
-        return Center(child: Text("Unknown Page", key: ValueKey("unknown")));
-    }
-  }
-
-  Widget _buildInfoPage() {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Informations RPGChampion",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              " $heroCount",
-              style: TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              "Leaderboard du serveur :",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Text(
-                  leaderboard,
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSettingsPage() {
-    return Center(
-      child: Text("Page des paramètres"),
     );
   }
 }

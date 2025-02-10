@@ -3,12 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/constant/color.dart';
 import 'package:frontend/constant/text_styles.dart';
-import 'package:frontend/database/database.dart';
-import 'package:frontend/database/model/user_model.dart';
-import 'package:frontend/screen/home/home.dart';
-import 'package:frontend/screen/login/login.dart';
-import 'package:frontend/screen/onboarding/onboarding_page.dart';
-import 'package:frontend/utils/onboarding_utils.dart';
+import 'package:frontend/screen/splashscreen/splashscreen.dart';
 import 'package:get/get.dart';
 
 Future<void> main() async {
@@ -50,46 +45,6 @@ class MyApp extends StatelessWidget {
         ).copyWith(background: AppColors.background),
       ),
       home: SplashScreen(),
-    );
-  }
-}
-
-class SplashScreen extends StatefulWidget {
-  @override
-  _SplashScreenState createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _checkOnboardingStatus();
-  }
-
-  Future<void> _checkOnboardingStatus() async {
-    bool hasSeen = await hasSeenOnboarding();
-    if (hasSeen) {
-      final db = Database();
-      await db.init();
-      final userCollection = db.isar.users;
-      final userCount = await userCollection.count();
-
-      if (userCount != 0) {
-        Get.off(() => const HomePage());
-      } else {
-        Get.off(() => const LoginPage(title: "LoginPage"));
-      }
-    } else {
-      Get.off(() => const OnboardingPage());
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
     );
   }
 }
