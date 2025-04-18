@@ -19,6 +19,11 @@ public class PrefixController extends ListenerAdapter implements CommandControll
 
     public PrefixController(PrefixRepository prefixRepository) {
         this.prefixRepository = prefixRepository;
+
+        prefixRepository.findAll().forEach(p ->  {
+            if(p.getPrefix().length()>1)
+                p.setPrefix(DEFAULT_PREFIX);
+        });
     }
 
     @Override
@@ -32,17 +37,24 @@ public class PrefixController extends ListenerAdapter implements CommandControll
 
             if (parts.length == 2) {
                 String newPrefix = parts[1];
-                PrefixModelDAO p = prefixRepository.findByGuildId(event.getGuild().getId()).orElse(new PrefixModelDAO());
-                p.setPrefix(newPrefix);
-                p.setGuildId(event.getGuild().getId());
-                prefixRepository.save(p);
+                if(newPrefix.length() > 1){
+                    embed.setTitle("Incorrect Usage ⚠️");
+                    embed.setColor(0xFF0000);
+                    embed.setDescription("Usage: **" + getPrefix(event) + "prefix <newPrefix>** the prefix must be 1 character long");
+                }else{
+                    PrefixModelDAO p = prefixRepository.findByGuildId(event.getGuild().getId()).orElse(new PrefixModelDAO());
+                    p.setPrefix(newPrefix);
+                    p.setGuildId(event.getGuild().getId());
+                    prefixRepository.save(p);
 
-                embed.setTitle("Prefix Changed ✅");
-                embed.setColor(0x00FF00); // Couleur verte
-                embed.setDescription("Prefix was changed to **" + newPrefix + "**.");
+                    embed.setTitle("Prefix Changed ✅");
+                    embed.setColor(0x00FF00);
+                    embed.setDescription("Prefix was changed to **" + newPrefix + "**.");
+                }
+
             } else {
                 embed.setTitle("Incorrect Usage ⚠️");
-                embed.setColor(0xFF0000); // Couleur rouge
+                embed.setColor(0xFF0000);
                 embed.setDescription("Usage: **" + getPrefix(event) + "prefix <newPrefix>**");
             }
 
