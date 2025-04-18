@@ -21,8 +21,10 @@ public class PrefixController extends ListenerAdapter implements CommandControll
         this.prefixRepository = prefixRepository;
 
         prefixRepository.findAll().forEach(p ->  {
-            if(p.getPrefix().length()>1)
+            if(p.getPrefix().length()>1) {
                 p.setPrefix(DEFAULT_PREFIX);
+                prefixRepository.save(p);
+            }
         });
     }
 
